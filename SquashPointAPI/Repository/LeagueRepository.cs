@@ -4,7 +4,7 @@ using SquashPointAPI.Models;
 
 namespace SquashPointAPI.Repository;
 
-public class LeagueRepository(DataContext context) : ILeagueRepository
+internal class LeagueRepository(DataContext context) : ILeagueRepository
 
 {
     public ICollection<League> GetAllLeagues()
@@ -30,5 +30,30 @@ public class LeagueRepository(DataContext context) : ILeagueRepository
     public bool LeagueExists(int leagueId)
     {
         return context.Leagues.Any(l => l.Id == leagueId);
+    }
+
+    public bool CreateLeague(League league)
+    {
+        context.Add(league);
+        return Save();
+    }
+
+    public bool AddPlayerToLeague(int leagueId, int playerId)
+    {
+        var league = context.Leagues.Where(l => l.Id == leagueId).FirstOrDefault();
+        var player = context.Players.Where(p => p.Id == playerId).FirstOrDefault();
+        var playerLeague = new PlayerLeague()
+        {
+            Player = player,
+            League = league
+        };
+        context.Add(playerLeague);
+        return Save();
+    }
+
+    public bool Save()
+    {
+        var saved = context.SaveChanges();
+        return saved > 0 ? true : false;
     }
 }

@@ -1,4 +1,6 @@
-﻿namespace SquashPointAPI.Models;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace SquashPointAPI.Models;
 
 public class League
 {

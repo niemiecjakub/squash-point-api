@@ -54,6 +54,28 @@ public class PlayerController(IPlayerRepository playerRepository, IMapper mapper
         }
         return Ok(player);
     }
-}
+    
+        
+    [HttpPost]
+    [ProducesResponseType(204)]
+    [ProducesResponseType(400)]
+    public IActionResult CreatePlayer([FromBody] PlayerDto playerCreate)
+    {
+        if (playerCreate == null)
+            return BadRequest(ModelState);
 
-// https://www.youtube.com/watch?v=-LAeEQSfOQk&list=PL82C6-O4XrHdiS10BLh23x71ve9mQCln0&index=6
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
+        // Use AutoMapper to map LeagueDto to League
+        var playerMap = mapper.Map<Player>(playerCreate);
+
+        if (!playerRepository.CreatePlayer(playerMap))
+        {
+            ModelState.AddModelError("", "Something went wrong while saving");
+            return StatusCode(500, ModelState);
+        }
+
+        return Ok("Successfully created");
+    }
+}

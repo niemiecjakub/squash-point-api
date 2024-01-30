@@ -22,5 +22,14 @@ public class PlayerRepository(DataContext context) : IPlayerRepository
     {
         return context.Players.Any(p => p.Id == playerId);
     }
-
+    public bool CreatePlayer(Player player)
+    {
+        context.Add(player);
+        return Save();
+    }
+    public bool Save()
+    {
+        var saved = context.SaveChanges();
+        return saved > 0 ? true : false;
+    }
 }

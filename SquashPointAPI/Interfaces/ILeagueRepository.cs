@@ -9,4 +9,7 @@ public interface ILeagueRepository
     public League GetLeagueByName(string leagueName);
     public ICollection<Player> GetAllLeaguePlayers(int leagueId);
     public bool LeagueExists(int leagueId);
-}
+    public bool CreateLeague(League league);
+    public bool AddPlayerToLeague(int leagueId, int playerId);
+    public bool Save();
+} 
