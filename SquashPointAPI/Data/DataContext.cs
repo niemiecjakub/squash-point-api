@@ -13,7 +13,7 @@ public class DataContext : DbContext
     public DbSet<League> Leagues { get; set; }
     public DbSet<Game> Games { get; set; }
     public DbSet<PlayerLeague> PlayerLeagues { get; set; }
-    
+    public DbSet<PlayerGame> PlayerGames { get; set; }
     // protected override void OnModelCreating(ModelBuilder modelBuilder)
     // {
     //     modelBuilder.Entity<PlayerLeague>()
