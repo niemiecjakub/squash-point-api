@@ -14,7 +14,7 @@ public class PlayerController(IPlayerRepository playerRepository, IMapper mapper
 
     [HttpGet]
     [ProducesResponseType(200, Type = typeof(IEnumerable<Player>))]
-    public IActionResult GetPlayer()
+    public IActionResult GetAllPlayers()
     {
         var players = mapper.Map<List<PlayerDto>>(playerRepository.GetPlayers());
         if (!ModelState.IsValid)

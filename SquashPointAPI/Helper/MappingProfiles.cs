@@ -9,5 +9,7 @@ public class MappingProfiles : Profile
     public MappingProfiles()
     {
         CreateMap<Player, PlayerDto>();
+        CreateMap<League, LeagueDto>();
+        CreateMap<Game, GameDto>();
     }
 }

@@ -12,6 +12,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddScoped<IPlayerRepository, PlayerRepository>();
+builder.Services.AddScoped<ILeagueRepository, LeagueRepository>();
+builder.Services.AddScoped<IGameRepository, GameRepository>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -42,3 +44,7 @@ app.MapControllers();
 app.UseHttpsRedirection();
 
 app.Run();
+
+// CHANNEL
+// https://www.youtube.com/@TeddySmithDev/videos
+// https://www.youtube.com/watch?v=jMFaAc3sa04
