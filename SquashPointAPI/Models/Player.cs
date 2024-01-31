@@ -8,4 +8,5 @@ public class Player
         public string Sex { get; set; }
         public ICollection<PlayerLeague> PlayerLeagues;
         public ICollection<PlayerGame> PlayerGames;
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }

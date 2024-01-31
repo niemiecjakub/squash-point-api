@@ -51,6 +51,11 @@ internal class LeagueRepository(DataContext context) : ILeagueRepository
         return Save();
     }
 
+    public bool IsPlayerInLeague(int leagueId, int playerId)
+    {
+        return context.PlayerLeagues.Any(pl => pl.LeagueId == leagueId && pl.PlayerId == playerId);
+    }
+
     public bool Save()
     {
         var saved = context.SaveChanges();

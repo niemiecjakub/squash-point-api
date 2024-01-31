@@ -79,4 +79,21 @@ public class GameController(IGameRepository gameRepository,IPlayerRepository pla
         }
         return Ok(game);
     }
+    
+    [HttpPost]
+    [ProducesResponseType(204)]
+    [ProducesResponseType(400)]
+    public IActionResult CreateGame([FromQuery] int leagueId, [FromQuery] int player1Id, [FromQuery] int player2Id)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+        
+        if (!gameRepository.CreateGame(leagueId, player1Id, player2Id))
+        {
+            ModelState.AddModelError("", "Something went wrong while saving");
+            return StatusCode(500, ModelState);
+        }
+
+        return Ok("Successfully created");
+    }
 }

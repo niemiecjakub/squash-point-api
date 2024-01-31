@@ -11,5 +11,6 @@ public interface ILeagueRepository
     public bool LeagueExists(int leagueId);
     public bool CreateLeague(League league);
     public bool AddPlayerToLeague(int leagueId, int playerId);
+    public bool IsPlayerInLeague(int leagueId, int playerId);
     public bool Save();
 } 

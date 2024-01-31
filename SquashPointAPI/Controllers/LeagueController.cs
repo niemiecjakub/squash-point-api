@@ -108,15 +108,12 @@ public class LeagueController(ILeagueRepository leagueRepository,IPlayerReposito
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]
     public IActionResult AddPlayerToLeague([FromQuery] int leagueId, [FromQuery] int playerId)
-    {
-        var league = leagueRepository.GetLeagueById(leagueId);
-        var player = playerRepository.GetPlayer(playerId);
-        
-        // if (pokemons != null)
-        // {
-        //     ModelState.AddModelError("", "Owner already exists");
-        //     return StatusCode(422, ModelState);
-        // }
+    {   
+        if (leagueRepository.IsPlayerInLeague(leagueId, playerId))
+        {
+            ModelState.AddModelError("", "Player is already in this league");
+            return StatusCode(422, ModelState);
+        }
         
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
@@ -127,8 +124,7 @@ public class LeagueController(ILeagueRepository leagueRepository,IPlayerReposito
             ModelState.AddModelError("", "Something went wrong while savin");
             return StatusCode(500, ModelState);
         }
-
+    
         return Ok("Successfully created");
     }
-
 }

@@ -44,7 +44,6 @@ namespace SquashPointAPI.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Score = table.Column<int>(type: "int", nullable: false),
                     LeagueId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -110,6 +109,57 @@ namespace SquashPointAPI.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "Set",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    WinnerId = table.Column<int>(type: "int", nullable: false),
+                    GameId = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Set", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Set_Games_GameId",
+                        column: x => x.GameId,
+                        principalTable: "Games",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Set_Players_WinnerId",
+                        column: x => x.WinnerId,
+                        principalTable: "Players",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Point",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    WinnerId = table.Column<int>(type: "int", nullable: false),
+                    PointType = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    SetId = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Point", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Point_Players_WinnerId",
+                        column: x => x.WinnerId,
+                        principalTable: "Players",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Point_Set_SetId",
+                        column: x => x.SetId,
+                        principalTable: "Set",
+                        principalColumn: "Id");
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_Games_LeagueId",
                 table: "Games",
@@ -134,6 +184,26 @@ namespace SquashPointAPI.Migrations
                 name: "IX_PlayerLeagues_PlayerId",
                 table: "PlayerLeagues",
                 column: "PlayerId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Point_SetId",
+                table: "Point",
+                column: "SetId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Point_WinnerId",
+                table: "Point",
+                column: "WinnerId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Set_GameId",
+                table: "Set",
+                column: "GameId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Set_WinnerId",
+                table: "Set",
+                column: "WinnerId");
         }
 
         /// <inheritdoc />
@@ -144,6 +214,12 @@ namespace SquashPointAPI.Migrations
 
             migrationBuilder.DropTable(
                 name: "PlayerLeagues");
+
+            migrationBuilder.DropTable(
+                name: "Point");
+
+            migrationBuilder.DropTable(
+                name: "Set");
 
             migrationBuilder.DropTable(
                 name: "Games");
