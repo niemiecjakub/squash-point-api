@@ -12,7 +12,7 @@ using SquashPointAPI.Data;
 namespace SquashPointAPI.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20240130230217_Initial")]
+    [Migration("20240131004716_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -33,6 +33,9 @@ namespace SquashPointAPI.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<int>("LeagueId")
                         .HasColumnType("int");
 
@@ -51,6 +54,9 @@ namespace SquashPointAPI.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -67,6 +73,9 @@ namespace SquashPointAPI.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("FirstName")
                         .IsRequired()
@@ -139,6 +148,9 @@ namespace SquashPointAPI.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("PointType")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -166,10 +178,13 @@ namespace SquashPointAPI.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("GameId")
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("GameId")
                         .HasColumnType("int");
 
-                    b.Property<int>("WinnerId")
+                    b.Property<int?>("WinnerId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -247,15 +262,17 @@ namespace SquashPointAPI.Migrations
 
             modelBuilder.Entity("SquashPointAPI.Models.Set", b =>
                 {
-                    b.HasOne("SquashPointAPI.Models.Game", null)
+                    b.HasOne("SquashPointAPI.Models.Game", "Game")
                         .WithMany("Sets")
-                        .HasForeignKey("GameId");
+                        .HasForeignKey("GameId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("SquashPointAPI.Models.Player", "Winner")
                         .WithMany()
-                        .HasForeignKey("WinnerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("WinnerId");
+
+                    b.Navigation("Game");
 
                     b.Navigation("Winner");
                 });

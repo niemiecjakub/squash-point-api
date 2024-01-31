@@ -7,7 +7,7 @@ public interface IPlayerRepository
     ICollection<Player> GetPlayers();
     ICollection<Player> GetPlayers(string firstName, string lastName);
     Player GetPlayer(int playerId);
-    public bool PlayerExists(int playerId);
-    public bool CreatePlayer(Player player);
-    public bool Save();
+    bool PlayerExists(int playerId);
+    bool CreatePlayer(Player player);
+    bool Save();
 }

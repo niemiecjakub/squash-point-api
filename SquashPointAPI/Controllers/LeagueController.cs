@@ -114,9 +114,11 @@ public class LeagueController(ILeagueRepository leagueRepository,IPlayerReposito
             ModelState.AddModelError("", "Player is already in this league");
             return StatusCode(422, ModelState);
         }
-        
+
         if (!ModelState.IsValid)
+        {
             return BadRequest(ModelState);
+        }
         
         
         if (!leagueRepository.AddPlayerToLeague(leagueId, playerId))

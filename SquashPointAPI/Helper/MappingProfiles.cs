@@ -16,5 +16,11 @@ public class MappingProfiles : Profile
         
         CreateMap<Game, GameDto>();
         CreateMap<GameDto, Game>();
+        
+        CreateMap<Set, SetDto>();
+        CreateMap<SetDto, Set>();
+        
+        CreateMap<Point, PointDto>();
+        CreateMap<PointDto, Point>();
     }
 }
