@@ -1,39 +1,41 @@
-﻿using AutoMapper;
-using Microsoft.AspNetCore.Mvc;
-using SquashPointAPI.Dto;
+﻿using Microsoft.AspNetCore.Mvc;
+using SquashPointAPI.Dto.League;
 using SquashPointAPI.Interfaces;
+using SquashPointAPI.Mappers;
 using SquashPointAPI.Models;
-using SquashPointAPI.Repository;
 
 namespace SquashPointAPI.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class LeagueController(ILeagueRepository leagueRepository,IPlayerRepository playerRepository ,IMapper mapper) : Controller
+public class LeagueController(ILeagueRepository leagueRepository) : Controller
 {
     [HttpGet]
     [ProducesResponseType(200, Type = typeof(IEnumerable<League>))]
     public IActionResult GetAllLeagues()
     {
-        var leagues = mapper.Map<List<LeagueDto>>(leagueRepository.GetAllLeagues());
+        var leagues = leagueRepository.GetAllLeagues();
+        var leagueDtos = leagues.Select(l => l.ToLeagueDto()).ToList();
+        
         if (!ModelState.IsValid)
         {
             return BadRequest(ModelState);
         }
         
-        return Ok(leagues);
+        return Ok(leagueDtos);
     }
     
     [HttpGet("name/{leagueName}")]
-    [ProducesResponseType(200, Type = typeof(IEnumerable<League>))]
+    [ProducesResponseType(200, Type = typeof(League))]
     public IActionResult GetLeagueByName(string leagueName)
     {
-        var league = mapper.Map<LeagueDto>(leagueRepository.GetLeagueByName(leagueName));
+        var league = leagueRepository.GetLeagueByName(leagueName);
+        var leagueDto = league.ToLeagueDto();
         if (!ModelState.IsValid)
         {
             return BadRequest(ModelState);
         }
-        return Ok(league);
+        return Ok(leagueDto);
     }
     
     [HttpGet("{leagueId}")]
@@ -45,37 +47,37 @@ public class LeagueController(ILeagueRepository leagueRepository,IPlayerReposito
         {
             return NotFound();
         }
-        var league = mapper.Map<LeagueDto>(leagueRepository.GetLeagueById(leagueId));
+        var league = leagueRepository.GetLeagueById(leagueId);
+        var leagueDto = league.ToLeagueDto();
         
         if (!ModelState.IsValid)
         {
             return BadRequest(ModelState);
         }
-        return Ok(league);
+        return Ok(leagueDto);
     }
     
     [HttpGet("players/{leagueId}")]
-    [ProducesResponseType(200, Type = typeof(IEnumerable<Player>))]
-    [ProducesResponseType(400)]
     public IActionResult GetAllLeaguePlayers(int leagueId)
     {
         if (!leagueRepository.LeagueExists(leagueId))
         {
             return NotFound();
         }
-        var leaguePlayers = mapper.Map<List<PlayerDto>>(leagueRepository.GetAllLeaguePlayers(leagueId));
-        
+        var leaguePlayers = leagueRepository.GetAllLeaguePlayers(leagueId);
+        var playerDtos = leaguePlayers.Select(p => p.ToPlayerDto()).ToList();
+            
         if (!ModelState.IsValid)
         {
             return BadRequest(ModelState);
         }
-        return Ok(leaguePlayers);
+        return Ok(playerDtos);
     }
     
     [HttpPost]
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]
-    public IActionResult CreateLeague([FromBody] LeagueDto leagueCreate)
+    public IActionResult CreateLeague([FromBody] CreateLeagueDto leagueCreate)
     {
         if (leagueCreate == null)
             return BadRequest(ModelState);
@@ -91,11 +93,10 @@ public class LeagueController(ILeagueRepository leagueRepository,IPlayerReposito
 
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
+        
+        var league = leagueCreate.ToLeagueFromCreateDTO();
 
-        // Use AutoMapper to map LeagueDto to League
-        var leagueMap = mapper.Map<League>(leagueCreate);
-
-        if (!leagueRepository.CreateLeague(leagueMap))
+        if (!leagueRepository.CreateLeague(league))
         {
             ModelState.AddModelError("", "Something went wrong while saving");
             return StatusCode(500, ModelState);

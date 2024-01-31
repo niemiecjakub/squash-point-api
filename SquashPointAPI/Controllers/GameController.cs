@@ -1,27 +1,29 @@
-﻿using AutoMapper;
-using Microsoft.AspNetCore.Mvc;
-using SquashPointAPI.Dto;
+﻿using Microsoft.AspNetCore.Mvc;
 using SquashPointAPI.Interfaces;
+using SquashPointAPI.Mappers;
 using SquashPointAPI.Models;
 
 namespace SquashPointAPI.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class GameController(IGameRepository gameRepository,IPlayerRepository playerRepository, ILeagueRepository leagueRepository, IMapper mapper) : Controller
+public class GameController(IGameRepository gameRepository,IPlayerRepository playerRepository, ILeagueRepository leagueRepository) : Controller
 {
     
     [HttpGet]
     [ProducesResponseType(200, Type = typeof(IEnumerable<Game>))]
     public IActionResult GetAllGames()
     {
-        var games = mapper.Map<List<GameDto>>(gameRepository.GetAllGames());
+        var games = gameRepository.GetAllGames();
+        var gameDtos = games.Select(g => g.ToGameDto()).ToList();
+        
+        
         if (!ModelState.IsValid)
         {
             return BadRequest(ModelState);
         }
         
-        return Ok(games);
+        return Ok(gameDtos);
     }
     
     [HttpGet("league/{leagueId}")]
@@ -34,13 +36,15 @@ public class GameController(IGameRepository gameRepository,IPlayerRepository pla
             return NotFound();
         }
         
-        var games = mapper.Map<List<GameDto>>(gameRepository.GetAllLeagueGames(leagueId));
+        var games = gameRepository.GetAllLeagueGames(leagueId);
+        var gameDtos = games.Select(g => g.ToGameDto()).ToList();
+        
         if (!ModelState.IsValid)
         {   
             return BadRequest(ModelState);
         }
         
-        return Ok(games);
+        return Ok(gameDtos);
     }
     
     [HttpGet("player/{playerId}")]
@@ -53,13 +57,15 @@ public class GameController(IGameRepository gameRepository,IPlayerRepository pla
             return NotFound();
         }
         
-        var games = mapper.Map<List<GameDto>>(gameRepository.GetAllPlayerGames(playerId));
+        var games = gameRepository.GetAllPlayerGames(playerId);
+        var gameDtos = games.Select(g => g.ToGameDto()).ToList();
+        
         if (!ModelState.IsValid)
         {
             return BadRequest(ModelState);
         }
         
-        return Ok(games);
+        return Ok(gameDtos);
     }
     
     [HttpGet("{gameId}")]
@@ -72,12 +78,14 @@ public class GameController(IGameRepository gameRepository,IPlayerRepository pla
             return NotFound();
         }
         
-        var game = mapper.Map<GameDto>(gameRepository.GetGameById(gameId));
+        var games = gameRepository.GetGameById(gameId);
+        var gameDto = games.ToGameDto();
+
         if (!ModelState.IsValid)
         {
             return BadRequest(ModelState);
         }
-        return Ok(game);
+        return Ok(gameDto);
     }
     
     [HttpPost]

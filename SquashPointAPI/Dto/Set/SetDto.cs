@@ -1,4 +1,4 @@
-﻿namespace SquashPointAPI.Dto;
+﻿namespace SquashPointAPI.Dto.Set;
 
 public class SetDto
 {
