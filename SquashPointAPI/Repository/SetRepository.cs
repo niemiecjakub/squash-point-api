@@ -1,4 +1,5 @@
-﻿using SquashPointAPI.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using SquashPointAPI.Data;
 using SquashPointAPI.Interfaces;
 using SquashPointAPI.Models;
 
@@ -6,27 +7,22 @@ namespace SquashPointAPI.Repository;
 
 public class SetRepository(DataContext context) : ISetRepository
 {
-    public bool CreateSet(int gameId)
+    public async Task<Set> CreateSetAsync(int gameId)
     {
-        var game = context.Games.Where(g => g.Id == gameId).FirstOrDefault();
+        var game = await context.Games.Where(g => g.Id == gameId).FirstOrDefaultAsync();
         var set = new Set()
         {
             Game = game,
             Winner = null
         };
         
-        context.Set.Add(set);
-
-        return Save();
+        await context.Set.AddAsync(set);
+        await context.SaveChangesAsync();
+        return set;
     }
 
-    public bool UpdateWinner(int playerId)
+    public async Task<Set> UpdateWinnerAsync(int playerId)
     {
         throw new NotImplementedException();
-    }
-    public bool Save()
-    {
-        var saved = context.SaveChanges();
-        return saved > 0 ? true : false;
     }
 }

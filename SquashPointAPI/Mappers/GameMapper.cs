@@ -14,4 +14,14 @@ public static class GameMapper
             CreatedAt = gameModel.CreatedAt,
         };
     }
+    
+    public static GameDetailsDto ToGameDetailsDto(this Game gameModel)
+    {
+        return new GameDetailsDto
+        {
+            Id = gameModel.Id,
+            CreatedAt = gameModel.CreatedAt,
+            players = gameModel.PlayerGames.Select(pg => pg.Player.ToPlayerDto()).ToList()
+        };
+    }
 }

@@ -1,8 +1,9 @@
-﻿namespace SquashPointAPI.Interfaces;
+﻿using SquashPointAPI.Models;
+
+namespace SquashPointAPI.Interfaces;
 
 public interface ISetRepository
 {
-    bool CreateSet(int gameId);
-    bool UpdateWinner(int playerId);
-    bool Save();
+    Task<Set>CreateSetAsync(int gameId);
+    Task<Set>UpdateWinnerAsync(int playerId);
 }

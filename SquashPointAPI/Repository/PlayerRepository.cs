@@ -1,4 +1,5 @@
-﻿using SquashPointAPI.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using SquashPointAPI.Data;
 using SquashPointAPI.Interfaces;
 using SquashPointAPI.Models;
 
@@ -6,30 +7,27 @@ namespace SquashPointAPI.Repository;
 
 public class PlayerRepository(DataContext context) : IPlayerRepository
 {
-    public ICollection<Player> GetPlayers()
+    public async Task<ICollection<Player>> GetPlayersAsync()
     {
-        return context.Players.OrderBy(p => p.Id).ToList();
+        return await context.Players.OrderBy(p => p.Id).ToListAsync();
     }
-    public ICollection<Player> GetPlayers(string firstName, string lastName)
+    public async Task<ICollection<Player>> GetPlayersAsync(string firstName, string lastName)
     {
-        return context.Players.Where(p => p.FirstName == firstName && p.LastName == lastName).ToList();
+        return await context.Players.Where(p => p.FirstName == firstName && p.LastName == lastName).ToListAsync();
     }
-    public Player GetPlayer(int playerId)
+    public async Task<Player> GetPlayerAsync(int playerId)
     {
-        return context.Players.Where(p => p.Id == playerId).FirstOrDefault();
+        return await context.Players.FirstOrDefaultAsync(p => p.Id == playerId);
     }
-    public bool PlayerExists(int playerId)
+    public async Task<Player> CreatePlayerAsync(Player player)
     {
-        return context.Players.Any(p => p.Id == playerId);
+        await context.AddAsync(player);
+        await context.SaveChangesAsync();
+        return player;
     }
-    public bool CreatePlayer(Player player)
+    public async Task<bool> PlayerExistsAsync(int playerId)
     {
-        context.Add(player);
-        return Save();
+        return await context.Players.AnyAsync(p => p.Id == playerId);
     }
-    public bool Save()
-    {
-        var saved = context.SaveChanges();
-        return saved > 0 ? true : false;
-    }
+
 }

@@ -4,11 +4,10 @@ namespace SquashPointAPI.Interfaces;
 
 public interface IGameRepository
 {
-    ICollection<Game> GetAllGames();
-    ICollection<Game> GetAllPlayerGames(int playerId);
-    ICollection<Game> GetAllLeagueGames(int leagueId);
-    Game GetGameById(int gameId);
-    bool GameExists(int gameId);
-    bool CreateGame(int leagueId, int player1Id, int player2Id);
-    bool Save();
+    Task<ICollection<Game>> GetAllGamesAsync();
+    Task<ICollection<Game>> GetAllPlayerGamesAsync(int playerId);
+    Task<ICollection<Game>> GetAllLeagueGamesAsync(int leagueId);
+    Task<Game> GetGameByIdAsync(int gameId);
+    Task<bool> GameExistsAsync(int gameId);
+    Task<Game> CreateGameAsync(int leagueId, int player1Id, int player2Id);
 }

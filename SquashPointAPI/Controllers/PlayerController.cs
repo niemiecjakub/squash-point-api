@@ -13,49 +13,50 @@ public class PlayerController(IPlayerRepository playerRepository) : Controller
 
     [HttpGet]
     [ProducesResponseType(200, Type = typeof(IEnumerable<Player>))]
-    public IActionResult GetAllPlayers()
+    public async Task<IActionResult> GetAllPlayers()
     {
-        var players = playerRepository.GetPlayers();
-        var playerDtos = players.Select(s => s.ToPlayerDto()).ToList();
-        
         if (!ModelState.IsValid)
         {
             return BadRequest(ModelState);
         }
+        
+        var players = await playerRepository.GetPlayersAsync();
+        var playerDtos = players.Select(s => s.ToPlayerDto()).ToList();
         
         return Ok(playerDtos);
     }
     
     [HttpGet("{firstName}/{lastName}")]
     [ProducesResponseType(200, Type = typeof(IEnumerable<Player>))]
-    public IActionResult GetPlayerByName(string firstName, string lastName)
+    public async Task<IActionResult> GetPlayerByName(string firstName, string lastName)
     {
-        var players = playerRepository.GetPlayers(firstName, lastName);
-        var playerDtos = players.Select(s => s.ToPlayerDto()).ToList();
-        
         if (!ModelState.IsValid)
         {
             return BadRequest(ModelState);
         }
+        var players = await playerRepository.GetPlayersAsync(firstName, lastName);
+        var playerDtos = players.Select(s => s.ToPlayerDto()).ToList();
+
         return Ok(playerDtos);
     }
     
     [HttpGet("{playerId}")]
     [ProducesResponseType(200, Type = typeof(Player))]
     [ProducesResponseType(400)]
-    public IActionResult GetPlayerById(int playerId)
+    public async Task<IActionResult> GetPlayerById(int playerId)
     {
-        if (!playerRepository.PlayerExists(playerId))
-        {
-            return NotFound();
-        }
-        var player = playerRepository.GetPlayer(playerId);
-        var playerDto = player.ToPlayerDto();
-        
         if (!ModelState.IsValid)
         {
             return BadRequest(ModelState);
         }
+        
+        if (!await playerRepository.PlayerExistsAsync(playerId))
+        {
+            return NotFound();
+        }
+        var player = await playerRepository.GetPlayerAsync(playerId);
+        var playerDto = player.ToPlayerDto();
+
         return Ok(playerDto);
     }
     
@@ -63,7 +64,7 @@ public class PlayerController(IPlayerRepository playerRepository) : Controller
     [HttpPost]
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]
-    public IActionResult CreatePlayer([FromBody] CreatePlayerDto playerCreate)
+    public async Task<IActionResult> CreatePlayer([FromBody] CreatePlayerDto playerCreate)
     {
         if (playerCreate == null)
             return BadRequest(ModelState);
@@ -73,13 +74,9 @@ public class PlayerController(IPlayerRepository playerRepository) : Controller
 
         // Use AutoMapper to map LeagueDto to League
         var player = playerCreate.ToPlayerFromCreateDTO();
+        await playerRepository.CreatePlayerAsync(player);
+        var playerDto = player.ToPlayerDto();
 
-        if (!playerRepository.CreatePlayer(player))
-        {
-            ModelState.AddModelError("", "Something went wrong while saving");
-            return StatusCode(500, ModelState);
-        }
-
-        return Ok("Successfully created");
+        return Ok(playerDto);
     }
 }

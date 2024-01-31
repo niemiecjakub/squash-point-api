@@ -12,16 +12,10 @@ public class GameController(IGameRepository gameRepository,IPlayerRepository pla
     
     [HttpGet]
     [ProducesResponseType(200, Type = typeof(IEnumerable<Game>))]
-    public IActionResult GetAllGames()
+    public async Task<IActionResult> GetAllGames()
     {
-        var games = gameRepository.GetAllGames();
+        var games = await gameRepository.GetAllGamesAsync();
         var gameDtos = games.Select(g => g.ToGameDto()).ToList();
-        
-        
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
         
         return Ok(gameDtos);
     }
@@ -29,20 +23,20 @@ public class GameController(IGameRepository gameRepository,IPlayerRepository pla
     [HttpGet("league/{leagueId}")]
     [ProducesResponseType(200, Type = typeof(IEnumerable<Game>))]
     [ProducesResponseType(400)]
-    public IActionResult GetAllLeagueGames(int leagueId)
+    public async Task<IActionResult> GetAllLeagueGames(int leagueId)
     {
-        if (!leagueRepository.LeagueExists(leagueId))
-        {
-            return NotFound();
-        }
-        
-        var games = gameRepository.GetAllLeagueGames(leagueId);
-        var gameDtos = games.Select(g => g.ToGameDto()).ToList();
-        
         if (!ModelState.IsValid)
         {   
             return BadRequest(ModelState);
         }
+        
+        if (!await leagueRepository.LeagueExistsAsync(leagueId))
+        {
+            return NotFound();
+        }
+        
+        var games = await gameRepository.GetAllLeagueGamesAsync(leagueId);
+        var gameDtos = games.Select(g => g.ToGameDto()).ToList();
         
         return Ok(gameDtos);
     }
@@ -50,20 +44,20 @@ public class GameController(IGameRepository gameRepository,IPlayerRepository pla
     [HttpGet("player/{playerId}")]
     [ProducesResponseType(200, Type = typeof(IEnumerable<Game>))]
     [ProducesResponseType(400)]
-    public IActionResult GetAllPlayerGames(int playerId)
+    public async Task<IActionResult> GetAllPlayerGames(int playerId)
     {
-        if (!playerRepository.PlayerExists(playerId))
-        {
-            return NotFound();
-        }
-        
-        var games = gameRepository.GetAllPlayerGames(playerId);
-        var gameDtos = games.Select(g => g.ToGameDto()).ToList();
-        
         if (!ModelState.IsValid)
         {
             return BadRequest(ModelState);
         }
+        
+        if (!await playerRepository.PlayerExistsAsync(playerId))
+        {
+            return NotFound();
+        }
+        
+        var games = await gameRepository.GetAllPlayerGamesAsync(playerId);
+        var gameDtos = games.Select(g => g.ToGameDto()).ToList();
         
         return Ok(gameDtos);
     }
@@ -71,37 +65,35 @@ public class GameController(IGameRepository gameRepository,IPlayerRepository pla
     [HttpGet("{gameId}")]
     [ProducesResponseType(200, Type = typeof(Game))]
     [ProducesResponseType(400)]
-    public IActionResult GetGameById(int gameId)
+    public async Task<IActionResult> GetGameById(int gameId)
     {
-        if (!gameRepository.GameExists(gameId))
-        {
-            return NotFound();
-        }
-        
-        var games = gameRepository.GetGameById(gameId);
-        var gameDto = games.ToGameDto();
-
         if (!ModelState.IsValid)
         {
             return BadRequest(ModelState);
         }
+        
+        if (!await gameRepository.GameExistsAsync(gameId))
+        {
+            return NotFound();
+        }
+        
+        var game = await gameRepository.GetGameByIdAsync(gameId);
+        var gameDto = game.ToGameDto();
+        
         return Ok(gameDto);
     }
     
     [HttpPost]
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]
-    public IActionResult CreateGame([FromQuery] int leagueId, [FromQuery] int player1Id, [FromQuery] int player2Id)
+    public async Task<IActionResult> CreateGame([FromQuery] int leagueId, [FromQuery] int player1Id, [FromQuery] int player2Id)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
-        
-        if (!gameRepository.CreateGame(leagueId, player1Id, player2Id))
-        {
-            ModelState.AddModelError("", "Something went wrong while saving");
-            return StatusCode(500, ModelState);
-        }
 
-        return Ok("Successfully created");
+        var game = await gameRepository.CreateGameAsync(leagueId, player1Id, player2Id);
+        var gameDto = game.ToGameDto();
+        
+        return Ok(gameDto);
     }
 }

@@ -8,41 +8,36 @@ namespace SquashPointAPI.Repository;
 
 public class GameRepository(DataContext context) : IGameRepository
 {
-    public ICollection<Game> GetAllGames()
+    public async Task<ICollection<Game>> GetAllGamesAsync()
     {
-        return context.Games.OrderBy(g => g.Id).ToList();
+        return await context.Games.OrderBy(g => g.Id).ToListAsync();
     }
 
-    public ICollection<Game> GetAllPlayerGames(int playerId)
+    public async Task<ICollection<Game>> GetAllPlayerGamesAsync(int playerId)
     {
-        return context.PlayerGames.Where(pg => pg.Player.Id == playerId).Select(pg => pg.Game).ToList();
+        return await context.PlayerGames.Where(pg => pg.Player.Id == playerId).Select(pg => pg.Game).ToListAsync();
     }
 
-    public ICollection<Game> GetAllLeagueGames(int leagueId)
+    public async Task<ICollection<Game>> GetAllLeagueGamesAsync(int leagueId)
     {
-        return context.Games.Where(g => g.League.Id == leagueId).ToList();
+        return await context.Games.Where(g => g.League.Id == leagueId).ToListAsync();
     }
 
-    public Game GetGameById(int gameId)
+    public async Task<Game> GetGameByIdAsync(int gameId)
     {
-        return context.Games.Where(g => g.Id == gameId).FirstOrDefault();
+        return await context.Games.FirstOrDefaultAsync(g => g.Id == gameId);
     }
 
-    public bool GameExists(int gameId)
+    public async Task<bool> GameExistsAsync(int gameId)
     {
-        return context.Games.Any(g => g.Id == gameId);
+        return await context.Games.AnyAsync(g => g.Id == gameId);
     }
     
-    public bool CreateGame(int leagueId, int player1Id, int player2Id)
+    public async Task<Game> CreateGameAsync(int leagueId, int player1Id, int player2Id)
     {
-        var league = context.Leagues.Find(leagueId);
-        var player1 = context.Players.Find(player1Id);
-        var player2 = context.Players.Find(player2Id);
-
-        if (league == null || player1 == null || player2 == null)
-        {
-            return false;
-        }
+        var league = await context.Leagues.FindAsync(leagueId);
+        var player1 = await context.Players.FindAsync(player1Id);
+        var player2 = await context.Players.FindAsync(player2Id);
 
         var newGame = new Game
         {
@@ -58,14 +53,10 @@ public class GameRepository(DataContext context) : IGameRepository
             Player = player2,
             Game = newGame
         };
-        context.Games.Add(newGame);
-        context.PlayerGames.Add(playerGame1);
-        context.PlayerGames.Add(playerGame2);
-        return Save();
-    }
-    public bool Save()
-    {
-        var saved = context.SaveChanges();
-        return saved > 0 ? true : false;
+        await context.Games.AddAsync(newGame);
+        await context.PlayerGames.AddAsync(playerGame1);
+        await context.PlayerGames.AddAsync(playerGame2);
+        await context.SaveChangesAsync();
+        return newGame;
     }
 }

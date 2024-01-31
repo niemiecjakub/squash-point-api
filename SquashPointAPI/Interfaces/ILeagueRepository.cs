@@ -4,13 +4,12 @@ namespace SquashPointAPI.Interfaces;
 
 public interface ILeagueRepository
 {
-    ICollection<League> GetAllLeagues();
-    League GetLeagueById(int leagueId);
-    League GetLeagueByName(string leagueName);
-    ICollection<Player> GetAllLeaguePlayers(int leagueId);
-    bool LeagueExists(int leagueId);
-    bool CreateLeague(League league);
-    bool AddPlayerToLeague(int leagueId, int playerId);
-    bool IsPlayerInLeague(int leagueId, int playerId);
-    bool Save();
+    Task<ICollection<League>> GetAllLeaguesAsync();
+    Task<League> GetLeagueByIdAsync(int leagueId);
+    Task<League> GetLeagueByNameAsync(string leagueName);
+    Task<ICollection<Player>> GetAllLeaguePlayersAsync(int leagueId);
+    Task<bool> LeagueExistsAsync(int leagueId);
+    Task<League> CreateLeagueAsync(League league);
+    Task<PlayerLeague> AddPlayerToLeagueAsync(int leagueId, int playerId);
+    Task<bool> IsPlayerInLeagueAsync(int leagueId, int playerId);
 } 

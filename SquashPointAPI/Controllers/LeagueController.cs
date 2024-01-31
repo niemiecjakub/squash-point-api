@@ -12,9 +12,9 @@ public class LeagueController(ILeagueRepository leagueRepository) : Controller
 {
     [HttpGet]
     [ProducesResponseType(200, Type = typeof(IEnumerable<League>))]
-    public IActionResult GetAllLeagues()
+    public async Task<IActionResult> GetAllLeagues()
     {
-        var leagues = leagueRepository.GetAllLeagues();
+        var leagues = await leagueRepository.GetAllLeaguesAsync();
         var leagueDtos = leagues.Select(l => l.ToLeagueDto()).ToList();
         
         if (!ModelState.IsValid)
@@ -27,9 +27,9 @@ public class LeagueController(ILeagueRepository leagueRepository) : Controller
     
     [HttpGet("name/{leagueName}")]
     [ProducesResponseType(200, Type = typeof(League))]
-    public IActionResult GetLeagueByName(string leagueName)
+    public async Task<IActionResult> GetLeagueByName(string leagueName)
     {
-        var league = leagueRepository.GetLeagueByName(leagueName);
+        var league = await leagueRepository.GetLeagueByNameAsync(leagueName);
         var leagueDto = league.ToLeagueDto();
         if (!ModelState.IsValid)
         {
@@ -41,30 +41,31 @@ public class LeagueController(ILeagueRepository leagueRepository) : Controller
     [HttpGet("{leagueId}")]
     [ProducesResponseType(200, Type = typeof(League))]
     [ProducesResponseType(400)]
-    public IActionResult GetLeagueById(int leagueId)
+    public async Task<IActionResult> GetLeagueById(int leagueId)
     {
-        if (!leagueRepository.LeagueExists(leagueId))
-        {
-            return NotFound();
-        }
-        var league = leagueRepository.GetLeagueById(leagueId);
-        var leagueDto = league.ToLeagueDto();
-        
         if (!ModelState.IsValid)
         {
             return BadRequest(ModelState);
         }
-        return Ok(leagueDto);
-    }
-    
-    [HttpGet("players/{leagueId}")]
-    public IActionResult GetAllLeaguePlayers(int leagueId)
-    {
-        if (!leagueRepository.LeagueExists(leagueId))
+        
+        if (!await leagueRepository.LeagueExistsAsync(leagueId))
         {
             return NotFound();
         }
-        var leaguePlayers = leagueRepository.GetAllLeaguePlayers(leagueId);
+        var league =await leagueRepository.GetLeagueByIdAsync(leagueId);
+        var leagueDetailsDto = league.ToLeagueDetailsDto();
+
+        return Ok(leagueDetailsDto);
+    }
+    
+    [HttpGet("players/{leagueId}")]
+    public async Task<IActionResult> GetAllLeaguePlayers(int leagueId)
+    {
+        if (!await leagueRepository.LeagueExistsAsync(leagueId))
+        {
+            return NotFound();
+        }
+        var leaguePlayers = await leagueRepository.GetAllLeaguePlayersAsync(leagueId);
         var playerDtos = leaguePlayers.Select(p => p.ToPlayerDto()).ToList();
             
         if (!ModelState.IsValid)
@@ -77,57 +78,47 @@ public class LeagueController(ILeagueRepository leagueRepository) : Controller
     [HttpPost]
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]
-    public IActionResult CreateLeague([FromBody] CreateLeagueDto leagueCreate)
+    public async Task<IActionResult> CreateLeague([FromBody] CreateLeagueDto leagueCreate)
     {
         if (leagueCreate == null)
             return BadRequest(ModelState);
 
-        var existingLeague = leagueRepository.GetAllLeagues()
-            .FirstOrDefault(c => c.Name.Trim().ToUpper() == leagueCreate.Name.TrimEnd().ToUpper());
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+        
+        var leagues = await leagueRepository.GetAllLeaguesAsync();
+        var existingLeague = leagues.FirstOrDefault(c => c.Name.Trim().ToUpper() == leagueCreate.Name.TrimEnd().ToUpper());
 
         if (existingLeague != null)
         {
             ModelState.AddModelError("", "League already exists");
             return StatusCode(422, ModelState);
         }
-
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
         
         var league = leagueCreate.ToLeagueFromCreateDTO();
+        await leagueRepository.CreateLeagueAsync(league);
+        var leagueDto = league.ToLeagueDto();
 
-        if (!leagueRepository.CreateLeague(league))
-        {
-            ModelState.AddModelError("", "Something went wrong while saving");
-            return StatusCode(500, ModelState);
-        }
-
-        return Ok("Successfully created");
+        return Ok(leagueDto);
     }
     
     [HttpPost("addPlayer")]
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]
-    public IActionResult AddPlayerToLeague([FromQuery] int leagueId, [FromQuery] int playerId)
+    public async Task<IActionResult> AddPlayerToLeague([FromQuery] int leagueId, [FromQuery] int playerId)
     {   
-        if (leagueRepository.IsPlayerInLeague(leagueId, playerId))
-        {
-            ModelState.AddModelError("", "Player is already in this league");
-            return StatusCode(422, ModelState);
-        }
-
         if (!ModelState.IsValid)
         {
             return BadRequest(ModelState);
         }
         
-        
-        if (!leagueRepository.AddPlayerToLeague(leagueId, playerId))
+        if (await leagueRepository.IsPlayerInLeagueAsync(leagueId, playerId))
         {
-            ModelState.AddModelError("", "Something went wrong while savin");
-            return StatusCode(500, ModelState);
+            ModelState.AddModelError("", "Player is already in this league");
+            return StatusCode(422, ModelState);
         }
-    
-        return Ok("Successfully created");
+
+        var playerLeague = await leagueRepository.AddPlayerToLeagueAsync(leagueId, playerId);
+        return Ok(playerLeague);
     }
 }

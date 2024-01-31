@@ -1,4 +1,5 @@
-﻿using SquashPointAPI.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using SquashPointAPI.Data;
 using SquashPointAPI.Interfaces;
 using SquashPointAPI.Models;
 
@@ -7,58 +8,60 @@ namespace SquashPointAPI.Repository;
 internal class LeagueRepository(DataContext context) : ILeagueRepository
 
 {
-    public ICollection<League> GetAllLeagues()
+    public async Task<ICollection<League>> GetAllLeaguesAsync()
     {
-        return context.Leagues.OrderBy(l => l.Id).ToList();
+        return await context.Leagues.OrderBy(l => l.Id).ToListAsync();
     }
 
-    public League GetLeagueById(int leagueId)
+    public async Task<League> GetLeagueByIdAsync(int leagueId)
     {
-        return context.Leagues.Where(l => l.Id == leagueId).FirstOrDefault();
+        return await context.Leagues
+            .Include(l => l.PlayerLeagues)
+            .ThenInclude(l => l.Player)
+            .Include(l => l.Games)
+            .ThenInclude(g => g.PlayerGames)
+            .FirstOrDefaultAsync(l => l.Id == leagueId);
     }
 
-    public League GetLeagueByName(string leagueName)
+    public async Task<League> GetLeagueByNameAsync(string leagueName)
     {
-        return context.Leagues.Where(l => l.Name == leagueName).FirstOrDefault();
+        return await context.Leagues.FirstOrDefaultAsync(l => l.Name == leagueName);
     }
 
-    public ICollection<Player> GetAllLeaguePlayers(int leagueId)
+    public async Task<ICollection<Player>> GetAllLeaguePlayersAsync(int leagueId)
     {
-        return context.PlayerLeagues.Where(pl => pl.League.Id == leagueId).Select(pl => pl.Player).ToList();
+        return await context.PlayerLeagues.Where(pl => pl.League.Id == leagueId).Select(pl => pl.Player).ToListAsync();
     }
 
-    public bool LeagueExists(int leagueId)
+    public async Task<bool> LeagueExistsAsync(int leagueId)
     {
-        return context.Leagues.Any(l => l.Id == leagueId);
+        return await context.Leagues.AnyAsync(l => l.Id == leagueId);
     }
 
-    public bool CreateLeague(League league)
+    public async Task<League> CreateLeagueAsync(League league)
     {
-        context.Add(league);
-        return Save();
+        await context.AddAsync(league);
+        await context.SaveChangesAsync();
+        return league;
     }
 
-    public bool AddPlayerToLeague(int leagueId, int playerId)
+    public async Task<PlayerLeague> AddPlayerToLeagueAsync(int leagueId, int playerId)
     {
-        var league = context.Leagues.Where(l => l.Id == leagueId).FirstOrDefault();
-        var player = context.Players.Where(p => p.Id == playerId).FirstOrDefault();
+        var league = await context.Leagues.FirstOrDefaultAsync(l => l.Id == leagueId);
+        var player = await context.Players.FirstOrDefaultAsync(p => p.Id == playerId);
         var playerLeague = new PlayerLeague()
         {
             Player = player,
             League = league
         };
-        context.Add(playerLeague);
-        return Save();
+        await context.AddAsync(playerLeague);
+        await context.SaveChangesAsync();
+        return playerLeague;
     }
 
-    public bool IsPlayerInLeague(int leagueId, int playerId)
+    public async Task<bool> IsPlayerInLeagueAsync(int leagueId, int playerId)
     {
-        return context.PlayerLeagues.Any(pl => pl.LeagueId == leagueId && pl.PlayerId == playerId);
+        return await context.PlayerLeagues.AnyAsync(pl => pl.LeagueId == leagueId && pl.PlayerId == playerId);
     }
 
-    public bool Save()
-    {
-        var saved = context.SaveChanges();
-        return saved > 0 ? true : false;
-    }
 }
