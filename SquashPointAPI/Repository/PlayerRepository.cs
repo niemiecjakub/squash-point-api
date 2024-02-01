@@ -11,14 +11,17 @@ public class PlayerRepository(DataContext context) : IPlayerRepository
     {
         return await context.Players.OrderBy(p => p.Id).ToListAsync();
     }
-    public async Task<ICollection<Player>> GetPlayersAsync(string firstName, string lastName)
-    {
-        return await context.Players.Where(p => p.FirstName == firstName && p.LastName == lastName).ToListAsync();
-    }
     public async Task<Player> GetPlayerAsync(int playerId)
     {
-        return await context.Players.FirstOrDefaultAsync(p => p.Id == playerId);
+        return await context.Players
+            .FirstOrDefaultAsync(p => p.Id == playerId);
     }
+    
+    public async Task<ICollection<Game>> GetAllPlayerGamesAsync(int playerId)
+    {
+        return await context.PlayerGames.Where(pg => pg.Player.Id == playerId).Select(pg => pg.Game).ToListAsync();
+    }
+
     public async Task<Player> CreatePlayerAsync(Player player)
     {
         await context.AddAsync(player);

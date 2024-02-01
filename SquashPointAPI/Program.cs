@@ -48,4 +48,9 @@ app.Run();
 
 // CHANNEL
 // https://www.youtube.com/@TeddySmithDev/videos
-// https://www.youtube.com/watch?v=jMFaAc3sa04
+
+// 2024
+// https://www.youtube.com/playlist?list=PL82C6-O4XrHfrGOCPmKmwTO7M0avXyQKc
+
+// REACT TS
+// https://www.youtube.com/playlist?list=PL82C6-O4XrHcNJd4ejg8pX5fZaIDZmXyn

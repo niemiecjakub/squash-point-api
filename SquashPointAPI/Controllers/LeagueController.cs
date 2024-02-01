@@ -10,7 +10,7 @@ namespace SquashPointAPI.Controllers;
 [ApiController]
 public class LeagueController(ILeagueRepository leagueRepository) : Controller
 {
-    [HttpGet]
+    [HttpGet("league-list")]
     [ProducesResponseType(200, Type = typeof(IEnumerable<League>))]
     public async Task<IActionResult> GetAllLeagues()
     {
@@ -24,20 +24,7 @@ public class LeagueController(ILeagueRepository leagueRepository) : Controller
         
         return Ok(leagueDtos);
     }
-    
-    [HttpGet("name/{leagueName}")]
-    [ProducesResponseType(200, Type = typeof(League))]
-    public async Task<IActionResult> GetLeagueByName(string leagueName)
-    {
-        var league = await leagueRepository.GetLeagueByNameAsync(leagueName);
-        var leagueDto = league.ToLeagueDto();
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-        return Ok(leagueDto);
-    }
-    
+
     [HttpGet("{leagueId}")]
     [ProducesResponseType(200, Type = typeof(League))]
     [ProducesResponseType(400)]
@@ -52,13 +39,13 @@ public class LeagueController(ILeagueRepository leagueRepository) : Controller
         {
             return NotFound();
         }
-        var league =await leagueRepository.GetLeagueByIdAsync(leagueId);
+        var league = await leagueRepository.GetLeagueByIdAsync(leagueId);
         var leagueDetailsDto = league.ToLeagueDetailsDto();
 
         return Ok(leagueDetailsDto);
     }
     
-    [HttpGet("players/{leagueId}")]
+    [HttpGet("{leagueId}/player-list")]
     public async Task<IActionResult> GetAllLeaguePlayers(int leagueId)
     {
         if (!await leagueRepository.LeagueExistsAsync(leagueId))
@@ -73,6 +60,27 @@ public class LeagueController(ILeagueRepository leagueRepository) : Controller
             return BadRequest(ModelState);
         }
         return Ok(playerDtos);
+    }
+    
+    [HttpGet("{leagueId}/league-games")]
+    [ProducesResponseType(200, Type = typeof(IEnumerable<Game>))]
+    [ProducesResponseType(400)]
+    public async Task<IActionResult> GetAllLeagueGames(int leagueId)
+    {
+        if (!ModelState.IsValid)
+        {   
+            return BadRequest(ModelState);
+        }
+        
+        if (!await leagueRepository.LeagueExistsAsync(leagueId))
+        {
+            return NotFound();
+        }
+        
+        var games = await leagueRepository.GetAllLeagueGamesAsync(leagueId);
+        var gameDtos = games.Select(g => g.ToGameDto()).ToList();
+        
+        return Ok(gameDtos);
     }
     
     [HttpPost]
@@ -119,6 +127,6 @@ public class LeagueController(ILeagueRepository leagueRepository) : Controller
         }
 
         var playerLeague = await leagueRepository.AddPlayerToLeagueAsync(leagueId, playerId);
-        return Ok(playerLeague);
+        return Ok("Success");
     }
 }

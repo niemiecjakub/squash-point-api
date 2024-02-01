@@ -10,8 +10,8 @@ namespace SquashPointAPI.Controllers;
 [ApiController]
 public class PlayerController(IPlayerRepository playerRepository) : Controller
 {
-
-    [HttpGet]
+    
+    [HttpGet("player-list")]
     [ProducesResponseType(200, Type = typeof(IEnumerable<Player>))]
     public async Task<IActionResult> GetAllPlayers()
     {
@@ -23,20 +23,6 @@ public class PlayerController(IPlayerRepository playerRepository) : Controller
         var players = await playerRepository.GetPlayersAsync();
         var playerDtos = players.Select(s => s.ToPlayerDto()).ToList();
         
-        return Ok(playerDtos);
-    }
-    
-    [HttpGet("{firstName}/{lastName}")]
-    [ProducesResponseType(200, Type = typeof(IEnumerable<Player>))]
-    public async Task<IActionResult> GetPlayerByName(string firstName, string lastName)
-    {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-        var players = await playerRepository.GetPlayersAsync(firstName, lastName);
-        var playerDtos = players.Select(s => s.ToPlayerDto()).ToList();
-
         return Ok(playerDtos);
     }
     
@@ -55,9 +41,30 @@ public class PlayerController(IPlayerRepository playerRepository) : Controller
             return NotFound();
         }
         var player = await playerRepository.GetPlayerAsync(playerId);
-        var playerDto = player.ToPlayerDto();
+        var playerDto = player.ToPlayerDetailsDto();
 
         return Ok(playerDto);
+    }
+    
+    [HttpGet("{playerId}/player-games")]
+    [ProducesResponseType(200, Type = typeof(IEnumerable<Game>))]
+    [ProducesResponseType(400)]
+    public async Task<IActionResult> GetAllPlayerGames(int playerId)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+        
+        if (!await playerRepository.PlayerExistsAsync(playerId))
+        {
+            return NotFound();
+        }
+        
+        var games = await playerRepository.GetAllPlayerGamesAsync(playerId);
+        var gameDtos = games.Select(g => g.ToGameDto()).ToList();
+        
+        return Ok(gameDtos);
     }
     
         

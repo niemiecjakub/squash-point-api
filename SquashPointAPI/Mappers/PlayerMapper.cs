@@ -1,4 +1,5 @@
 ﻿using SquashPointAPI.Dto;
+using SquashPointAPI.Dto.League;
 using SquashPointAPI.Dto.Player;
 using SquashPointAPI.Models;
 
@@ -26,6 +27,16 @@ namespace SquashPointAPI.Mappers;
                 FirstName = playerDto.FirstName,
                 LastName = playerDto.LastName,
                 Sex = playerDto.Sex,
+            };
+        }
+        
+        public static PlayerDetailsDto ToPlayerDetailsDto(this Player playerModel)
+        {
+            return new PlayerDetailsDto
+            {
+                Id = playerModel.Id,
+                FirstName = playerModel.FirstName,
+                LastName = playerModel.LastName,
             };
         }
     }

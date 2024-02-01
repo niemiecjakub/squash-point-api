@@ -13,16 +13,6 @@ public class GameRepository(DataContext context) : IGameRepository
         return await context.Games.OrderBy(g => g.Id).ToListAsync();
     }
 
-    public async Task<ICollection<Game>> GetAllPlayerGamesAsync(int playerId)
-    {
-        return await context.PlayerGames.Where(pg => pg.Player.Id == playerId).Select(pg => pg.Game).ToListAsync();
-    }
-
-    public async Task<ICollection<Game>> GetAllLeagueGamesAsync(int leagueId)
-    {
-        return await context.Games.Where(g => g.League.Id == leagueId).ToListAsync();
-    }
-
     public async Task<Game> GetGameByIdAsync(int gameId)
     {
         return await context.Games.FirstOrDefaultAsync(g => g.Id == gameId);

@@ -23,14 +23,14 @@ internal class LeagueRepository(DataContext context) : ILeagueRepository
             .FirstOrDefaultAsync(l => l.Id == leagueId);
     }
 
-    public async Task<League> GetLeagueByNameAsync(string leagueName)
-    {
-        return await context.Leagues.FirstOrDefaultAsync(l => l.Name == leagueName);
-    }
-
     public async Task<ICollection<Player>> GetAllLeaguePlayersAsync(int leagueId)
     {
         return await context.PlayerLeagues.Where(pl => pl.League.Id == leagueId).Select(pl => pl.Player).ToListAsync();
+    }
+    
+    public async Task<ICollection<Game>> GetAllLeagueGamesAsync(int leagueId)
+    {
+        return await context.Games.Where(g => g.League.Id == leagueId).ToListAsync();
     }
 
     public async Task<bool> LeagueExistsAsync(int leagueId)

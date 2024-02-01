@@ -10,53 +10,11 @@ namespace SquashPointAPI.Controllers;
 public class GameController(IGameRepository gameRepository,IPlayerRepository playerRepository, ILeagueRepository leagueRepository) : Controller
 {
     
-    [HttpGet]
+    [HttpGet("game-list")]
     [ProducesResponseType(200, Type = typeof(IEnumerable<Game>))]
     public async Task<IActionResult> GetAllGames()
     {
         var games = await gameRepository.GetAllGamesAsync();
-        var gameDtos = games.Select(g => g.ToGameDto()).ToList();
-        
-        return Ok(gameDtos);
-    }
-    
-    [HttpGet("league/{leagueId}")]
-    [ProducesResponseType(200, Type = typeof(IEnumerable<Game>))]
-    [ProducesResponseType(400)]
-    public async Task<IActionResult> GetAllLeagueGames(int leagueId)
-    {
-        if (!ModelState.IsValid)
-        {   
-            return BadRequest(ModelState);
-        }
-        
-        if (!await leagueRepository.LeagueExistsAsync(leagueId))
-        {
-            return NotFound();
-        }
-        
-        var games = await gameRepository.GetAllLeagueGamesAsync(leagueId);
-        var gameDtos = games.Select(g => g.ToGameDto()).ToList();
-        
-        return Ok(gameDtos);
-    }
-    
-    [HttpGet("player/{playerId}")]
-    [ProducesResponseType(200, Type = typeof(IEnumerable<Game>))]
-    [ProducesResponseType(400)]
-    public async Task<IActionResult> GetAllPlayerGames(int playerId)
-    {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-        
-        if (!await playerRepository.PlayerExistsAsync(playerId))
-        {
-            return NotFound();
-        }
-        
-        var games = await gameRepository.GetAllPlayerGamesAsync(playerId);
         var gameDtos = games.Select(g => g.ToGameDto()).ToList();
         
         return Ok(gameDtos);
