@@ -14,6 +14,12 @@ public class PlayerRepository(DataContext context) : IPlayerRepository
     public async Task<Player> GetPlayerAsync(int playerId)
     {
         return await context.Players
+            .Include(p => p.PlayerLeagues)
+            .ThenInclude(pg => pg.League)
+            .Include(p => p.PlayerGames)
+            .ThenInclude(pg => pg.Game)
+            .ThenInclude(g => g.PlayerGames)
+            .ThenInclude(g => g.Player)
             .FirstOrDefaultAsync(p => p.Id == playerId);
     }
     

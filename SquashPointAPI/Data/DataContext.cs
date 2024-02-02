@@ -16,18 +16,6 @@ public class DataContext : DbContext
     public DbSet<Point> Point { get; set; }
     public DbSet<PlayerLeague> PlayerLeagues { get; set; }
     public DbSet<PlayerGame> PlayerGames { get; set; }
-    // protected override void OnModelCreating(ModelBuilder modelBuilder)
-    // {
-    //     modelBuilder.Entity<PlayerLeague>()
-    //         .HasKey(pl => new { pl.PlayerId, pl.LeagueId });
-    //     modelBuilder.Entity<PlayerLeague>()
-    //         .HasOne(pl => pl.Player)
-    //         .WithMany(p => p.PlayerLeagues)
-    //         .HasForeignKey(pl => pl.PlayerId);
-    //     modelBuilder.Entity<PlayerLeague>()
-    //         .HasOne(pl => pl.League)
-    //         .WithMany(l => l.PlayerLeagues)
-    //         .HasForeignKey(pl => pl.LeagueId);
-    //     
-    // }
+    
+
 }

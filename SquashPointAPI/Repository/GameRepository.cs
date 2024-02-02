@@ -15,7 +15,10 @@ public class GameRepository(DataContext context) : IGameRepository
 
     public async Task<Game> GetGameByIdAsync(int gameId)
     {
-        return await context.Games.FirstOrDefaultAsync(g => g.Id == gameId);
+        return await context.Games
+            .Include(g => g.PlayerGames)
+            .ThenInclude(pg => pg.Player)
+            .FirstOrDefaultAsync(g => g.Id == gameId);
     }
 
     public async Task<bool> GameExistsAsync(int gameId)
@@ -23,7 +26,7 @@ public class GameRepository(DataContext context) : IGameRepository
         return await context.Games.AnyAsync(g => g.Id == gameId);
     }
     
-    public async Task<Game> CreateGameAsync(int leagueId, int player1Id, int player2Id)
+    public async Task<Game> CreateGameAsync(int leagueId, int player1Id, int player2Id, DateTime date)
     {
         var league = await context.Leagues.FindAsync(leagueId);
         var player1 = await context.Players.FindAsync(player1Id);
@@ -32,6 +35,8 @@ public class GameRepository(DataContext context) : IGameRepository
         var newGame = new Game
         {
             League = league,
+            Status = "Unfinished",
+            Date = date
         };
         var playerGame1 = new PlayerGame()
         {

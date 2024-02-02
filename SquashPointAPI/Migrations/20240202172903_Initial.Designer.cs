@@ -12,7 +12,7 @@ using SquashPointAPI.Data;
 namespace SquashPointAPI.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20240131004716_Initial")]
+    [Migration("20240202172903_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -36,12 +36,24 @@ namespace SquashPointAPI.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
+
                     b.Property<int>("LeagueId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("WinnerId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
                     b.HasIndex("LeagueId");
+
+                    b.HasIndex("WinnerId");
 
                     b.ToTable("Games");
                 });
@@ -76,6 +88,10 @@ namespace SquashPointAPI.Migrations
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("FirstName")
                         .IsRequired()
@@ -204,7 +220,13 @@ namespace SquashPointAPI.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("SquashPointAPI.Models.Player", "Winner")
+                        .WithMany()
+                        .HasForeignKey("WinnerId");
+
                     b.Navigation("League");
+
+                    b.Navigation("Winner");
                 });
 
             modelBuilder.Entity("SquashPointAPI.Models.PlayerGame", b =>
@@ -216,7 +238,7 @@ namespace SquashPointAPI.Migrations
                         .IsRequired();
 
                     b.HasOne("SquashPointAPI.Models.Player", "Player")
-                        .WithMany()
+                        .WithMany("PlayerGames")
                         .HasForeignKey("PlayerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -235,7 +257,7 @@ namespace SquashPointAPI.Migrations
                         .IsRequired();
 
                     b.HasOne("SquashPointAPI.Models.Player", "Player")
-                        .WithMany()
+                        .WithMany("PlayerLeagues")
                         .HasForeignKey("PlayerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -287,6 +309,13 @@ namespace SquashPointAPI.Migrations
             modelBuilder.Entity("SquashPointAPI.Models.League", b =>
                 {
                     b.Navigation("Games");
+
+                    b.Navigation("PlayerLeagues");
+                });
+
+            modelBuilder.Entity("SquashPointAPI.Models.Player", b =>
+                {
+                    b.Navigation("PlayerGames");
 
                     b.Navigation("PlayerLeagues");
                 });

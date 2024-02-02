@@ -34,6 +34,7 @@ namespace SquashPointAPI.Migrations
                     FirstName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     LastName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Sex = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
@@ -47,7 +48,10 @@ namespace SquashPointAPI.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
+                    WinnerId = table.Column<int>(type: "int", nullable: true),
                     LeagueId = table.Column<int>(type: "int", nullable: false),
+                    Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Date = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
@@ -59,6 +63,11 @@ namespace SquashPointAPI.Migrations
                         principalTable: "Leagues",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Games_Players_WinnerId",
+                        column: x => x.WinnerId,
+                        principalTable: "Players",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -172,6 +181,11 @@ namespace SquashPointAPI.Migrations
                 column: "LeagueId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Games_WinnerId",
+                table: "Games",
+                column: "WinnerId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_PlayerGames_GameId",
                 table: "PlayerGames",
                 column: "GameId");
@@ -231,10 +245,10 @@ namespace SquashPointAPI.Migrations
                 name: "Games");
 
             migrationBuilder.DropTable(
-                name: "Players");
+                name: "Leagues");
 
             migrationBuilder.DropTable(
-                name: "Leagues");
+                name: "Players");
         }
     }
 }

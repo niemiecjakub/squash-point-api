@@ -6,7 +6,8 @@ public class Player
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string Sex { get; set; }
-        public ICollection<PlayerLeague> PlayerLeagues;
-        public ICollection<PlayerGame> PlayerGames;
+        public string Email { get; set; }
+        public ICollection<PlayerLeague> PlayerLeagues { get; set; }
+        public ICollection<PlayerGame> PlayerGames { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }

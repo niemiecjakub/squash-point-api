@@ -36,7 +36,7 @@ public class GameController(IGameRepository gameRepository,IPlayerRepository pla
         }
         
         var game = await gameRepository.GetGameByIdAsync(gameId);
-        var gameDto = game.ToGameDto();
+        var gameDto = game.ToGameDetailsDto();
         
         return Ok(gameDto);
     }
@@ -44,12 +44,13 @@ public class GameController(IGameRepository gameRepository,IPlayerRepository pla
     [HttpPost]
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]
-    public async Task<IActionResult> CreateGame([FromQuery] int leagueId, [FromQuery] int player1Id, [FromQuery] int player2Id)
+    public async Task<IActionResult> CreateGame([FromQuery] int leagueId, [FromQuery] int player1Id, [FromQuery] int player2Id, [FromQuery] int year, [FromQuery] int month, [FromQuery] int day, [FromQuery] int hour, [FromQuery] int minute)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
-
-        var game = await gameRepository.CreateGameAsync(leagueId, player1Id, player2Id);
+        
+        DateTime date = new DateTime(year, month, day, hour, minute, 0);
+        var game = await gameRepository.CreateGameAsync(leagueId, player1Id, player2Id, date);
         var gameDto = game.ToGameDto();
         
         return Ok(gameDto);

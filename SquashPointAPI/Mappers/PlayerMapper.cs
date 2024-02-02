@@ -15,6 +15,7 @@ namespace SquashPointAPI.Mappers;
                 Id = playerModel.Id,
                 FirstName = playerModel.FirstName,
                 LastName = playerModel.LastName,
+                Email = playerModel.Email,
                 Sex = playerModel.Sex,
                 CreatedAt = playerModel.CreatedAt,
             };
@@ -26,6 +27,7 @@ namespace SquashPointAPI.Mappers;
             {
                 FirstName = playerDto.FirstName,
                 LastName = playerDto.LastName,
+                Email = playerDto.Email,
                 Sex = playerDto.Sex,
             };
         }
@@ -37,6 +39,10 @@ namespace SquashPointAPI.Mappers;
                 Id = playerModel.Id,
                 FirstName = playerModel.FirstName,
                 LastName = playerModel.LastName,
+                Sex = playerModel.Sex,
+                Email = playerModel.Email,
+                Leagues = playerModel.PlayerLeagues.Select(pl => pl.League.ToLeagueDto()).ToList(),
+                Games = playerModel.PlayerGames.Select(pg => pg.Game.ToGameDetailsDto()).ToList()
             };
         }
     }
