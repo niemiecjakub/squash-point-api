@@ -7,7 +7,7 @@ namespace SquashPointAPI.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class GameController(IGameRepository gameRepository,IPlayerRepository playerRepository, ILeagueRepository leagueRepository) : Controller
+public class GameController(IGameRepository gameRepository) : Controller
 {
     
     [HttpGet("game-list")]
