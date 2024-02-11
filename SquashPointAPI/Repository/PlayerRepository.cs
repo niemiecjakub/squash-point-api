@@ -39,4 +39,8 @@ public class PlayerRepository(DataContext context) : IPlayerRepository
         return await context.Players.AnyAsync(p => p.Id == playerId);
     }
 
+    public async Task<bool> EmailAlreadyTakenAsync(string email)
+    {
+        return await context.Players.AnyAsync(p => p.Email == email);
+    }
 }

@@ -9,4 +9,5 @@ public interface IPlayerRepository
     Task<ICollection<Game>> GetAllPlayerGamesAsync(int playerId);
     Task<Player> CreatePlayerAsync(Player player);
     Task<bool> PlayerExistsAsync(int playerId);
+    Task<bool> EmailAlreadyTakenAsync(string email);
 }

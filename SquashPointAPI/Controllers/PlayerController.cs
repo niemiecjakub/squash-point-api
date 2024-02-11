@@ -78,8 +78,12 @@ public class PlayerController(IPlayerRepository playerRepository) : Controller
 
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
-
-        // Use AutoMapper to map LeagueDto to League
+        
+        if (await playerRepository.EmailAlreadyTakenAsync(playerCreate.Email))
+        {
+            return BadRequest("Email with this account already exists");
+        }
+        
         var player = playerCreate.ToPlayerFromCreateDTO();
         await playerRepository.CreatePlayerAsync(player);
         var playerDto = player.ToPlayerDto();
