@@ -1,5 +1,6 @@
 ﻿using SquashPointAPI.Dto;
 using SquashPointAPI.Dto.Game;
+using SquashPointAPI.Dto.Player;
 using SquashPointAPI.Models;
 
 namespace SquashPointAPI.Mappers;

@@ -47,19 +47,31 @@ public static class PlayerMapper
         };
     }
 
-    public static LeaguePlayerDto ToLeaguePlayerDto(this Player playerModel, int leagueId)
+    
+    public static LeaguePlayerDto ToLeaguePlayerDto(this Player playerModel)
     {
-        return new LeaguePlayerDto()
-        {
-            Id = playerModel.Id,
-            FirstName = playerModel.FirstName,
-            LastName = playerModel.LastName,
-            FullName = playerModel.FirstName + " " + playerModel.LastName,
-            Sex = playerModel.Sex,
-            Email = playerModel.Email,
-            GamesPlayed = playerModel.PlayerGames
-                .Where(pg => pg.Game.League.Id == leagueId && pg.Game.Status == "Finished").ToList().Count,
-            Score = playerModel.PlayerLeagues.First(pl => pl.LeagueId == leagueId).Score
-        };
+
+        LeaguePlayerDto dto = new LeaguePlayerDto();
+        dto.Id = playerModel.Id;
+        dto.FirstName = playerModel.FirstName;
+        dto.LastName = playerModel.LastName;
+        dto.FullName = playerModel.FirstName + " " + playerModel.LastName;
+        dto.Sex = playerModel.Sex;
+        dto.Email = playerModel.Email;
+        dto.GamesPlayed = playerModel.PlayerGames.ToList().Count;
+        dto.Score = playerModel.PlayerLeagues.First().Score;
+
+        return dto;
+        // return new LeaguePlayerDto()
+        // {
+        //     Id = playerModel.Id,
+        //     FirstName = playerModel.FirstName,
+        //     LastName = playerModel.LastName,
+        //     FullName = playerModel.FirstName + " " + playerModel.LastName,
+        //     Sex = playerModel.Sex,
+        //     Email = playerModel.Email,
+        //     GamesPlayed = playerModel.PlayerGames.ToList().Count,
+        //     Score = playerModel.PlayerLeagues.First().Score,
+        // };
     }
 }

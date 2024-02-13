@@ -24,14 +24,22 @@ public static class LeagueMapper
         };
     }
 
-    public static LeagueDetailsDto ToLeagueDetailsDto(this League leagueModel, int leagueId)
+    public static LeagueDetailsDto ToLeagueDetailsDto(this League leagueModel)
     {
-        return new LeagueDetailsDto
-        {
-            Id = leagueModel.Id,
-            Name = leagueModel.Name,
-            Players = leagueModel.PlayerLeagues.Select(pl => pl.Player.ToLeaguePlayerDto(leagueId)).ToList(),
-            Games = leagueModel.Games.Select(g => g.ToGameDetailsDto()).ToList(),
-        };
+        LeagueDetailsDto dto = new LeagueDetailsDto();
+        dto.Id = leagueModel.Id;
+        dto.Name = leagueModel.Name;
+        dto.Players = leagueModel.PlayerLeagues.Select(pl => pl.Player.ToLeaguePlayerDto())
+            .OrderByDescending(p => p.Score).ToList();
+        dto.Games = leagueModel.Games.Select(g => g.ToGameDetailsDto()).ToList();
+        
+        return dto;
+        // return new LeagueDetailsDto
+        // {
+        //     Id = leagueModel.Id,
+        //     Name = leagueModel.Name,
+        //     Players = leagueModel.PlayerLeagues.Select(pl => pl.Player.ToLeaguePlayerDto()).OrderByDescending(p => p.Score).ToList(),
+        //     Games = leagueModel.Games.Select(g => g.ToGameDetailsDto()).ToList(),
+        // };
     }
 }

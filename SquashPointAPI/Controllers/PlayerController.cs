@@ -71,7 +71,7 @@ public class PlayerController(IPlayerRepository playerRepository) : Controller
     [HttpPost]
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]
-    public async Task<IActionResult> CreatePlayer([FromBody] CreatePlayerDto playerCreate)
+    public async Task<IActionResult> CreatePlayer([FromQuery] CreatePlayerDto playerCreate)
     {
         if (playerCreate == null)
             return BadRequest(ModelState);

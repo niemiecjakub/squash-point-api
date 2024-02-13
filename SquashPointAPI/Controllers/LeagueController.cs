@@ -43,11 +43,12 @@ public class LeagueController(ILeagueRepository leagueRepository) : Controller
         }
 
         var league = await leagueRepository.GetLeagueByIdAsync(leagueId);
-        var leagueDetailsDto = league.ToLeagueDetailsDto(leagueId);
+        var leagueDetailsDto = league.ToLeagueDetailsDto();
 
         return Ok(leagueDetailsDto);
     }
 
+    
     [HttpGet("{leagueId}/player-list")]
     [ProducesResponseType(200, Type = typeof(IEnumerable<LeaguePlayerDto>))]
     [ProducesResponseType(400)]
@@ -59,7 +60,7 @@ public class LeagueController(ILeagueRepository leagueRepository) : Controller
         }
 
         var leaguePlayers = await leagueRepository.GetAllLeaguePlayersAsync(leagueId);
-        var leaguePlayerDtos = leaguePlayers.Select(p => p.ToLeaguePlayerDto(leagueId)).ToList();
+        var leaguePlayerDtos = leaguePlayers.Select(p => p.ToLeaguePlayerDto()).OrderByDescending(p => p.Score).ToList();
         if (!ModelState.IsValid)
         {
             return BadRequest(ModelState);
@@ -93,7 +94,7 @@ public class LeagueController(ILeagueRepository leagueRepository) : Controller
     [ProducesResponseType(200, Type = typeof(LeagueDto))]
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]
-    public async Task<IActionResult> CreateLeague([FromBody] CreateLeagueDto leagueCreate)
+    public async Task<IActionResult> CreateLeague([FromQuery] CreateLeagueDto leagueCreate)
     {
         if (leagueCreate == null)
             return BadRequest(ModelState);
@@ -136,6 +137,6 @@ public class LeagueController(ILeagueRepository leagueRepository) : Controller
         }
 
         var playerLeague = await leagueRepository.AddPlayerToLeagueAsync(leagueId, playerId);
-        return Ok(playerLeague);
+        return Ok("Succesfully added");
     }
 }
