@@ -1,23 +1,22 @@
 ﻿using SquashPointAPI.Data;
+using SquashPointAPI.Dto.Point;
 using SquashPointAPI.Interfaces;
+using SquashPointAPI.Models;
 
 namespace SquashPointAPI.Repository;
 
 public class PointRepository(DataContext context) : IPointRepository
 {
-    public bool CreatePoint(int setId, string pointType)
+    public async Task<Point> CreatePointAsync(CreatePointDto createPointDto)
     {
-        throw new NotImplementedException();
+        var point = createPointDto.ToPoint();
+        await context.AddAsync(point);
+        await context.SaveChangesAsync();
+        return point;
     }
 
     public bool UpdateWinner(int playerId)
     {
         throw new NotImplementedException();
-    }
-
-    public bool Save()
-    {
-        var saved = context.SaveChanges();
-        return saved > 0 ? true : false;
     }
 }

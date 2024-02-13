@@ -2,6 +2,7 @@
 using SquashPointAPI.Dto.Game;
 using SquashPointAPI.Dto.League;
 using SquashPointAPI.Dto.Player;
+using SquashPointAPI.Helpers;
 using SquashPointAPI.Interfaces;
 using SquashPointAPI.Mappers;
 using SquashPointAPI.Models;
@@ -16,7 +17,7 @@ public class LeagueController(ILeagueRepository leagueRepository) : Controller
     [ProducesResponseType(200, Type = typeof(IEnumerable<LeagueDto>))]
     public async Task<IActionResult> GetAllLeagues()
     {
-        var leagues = await leagueRepository.GetAllLeaguesAsync();
+        var leagues = await leagueRepository.GetLeaguesAsync();
         var leagueDtos = leagues.Select(l => l.ToLeagueDto()).ToList();
 
         if (!ModelState.IsValid)
@@ -59,7 +60,7 @@ public class LeagueController(ILeagueRepository leagueRepository) : Controller
             return NotFound();
         }
 
-        var leaguePlayers = await leagueRepository.GetAllLeaguePlayersAsync(leagueId);
+        var leaguePlayers = await leagueRepository.GetLeaguePlayersAsync(leagueId);
         var leaguePlayerDtos = leaguePlayers.Select(p => p.ToLeaguePlayerDto()).OrderByDescending(p => p.Score).ToList();
         if (!ModelState.IsValid)
         {
@@ -72,7 +73,7 @@ public class LeagueController(ILeagueRepository leagueRepository) : Controller
     [HttpGet("{leagueId}/league-games")]
     [ProducesResponseType(200, Type = typeof(IEnumerable<GameDto>))]
     [ProducesResponseType(400)]
-    public async Task<IActionResult> GetAllLeagueGames(int leagueId)
+    public async Task<IActionResult> GetAllLeagueGames(int leagueId, [FromQuery] QueryObject query)
     {
         if (!ModelState.IsValid)
         {
@@ -84,7 +85,7 @@ public class LeagueController(ILeagueRepository leagueRepository) : Controller
             return NotFound();
         }
 
-        var games = await leagueRepository.GetAllLeagueGamesAsync(leagueId);
+        var games = await leagueRepository.GetLeagueGamesAsync(leagueId, query);
         var gameDtos = games.Select(g => g.ToGameDto()).ToList();
 
         return Ok(gameDtos);
@@ -102,7 +103,7 @@ public class LeagueController(ILeagueRepository leagueRepository) : Controller
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        var leagues = await leagueRepository.GetAllLeaguesAsync();
+        var leagues = await leagueRepository.GetLeaguesAsync();
         var existingLeague =
             leagues.FirstOrDefault(c => c.Name.Trim().ToUpper() == leagueCreate.Name.TrimEnd().ToUpper());
 

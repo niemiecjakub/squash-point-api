@@ -1,11 +1,13 @@
-﻿using SquashPointAPI.Models;
+﻿
+
+using System.Runtime.InteropServices.JavaScript;
 
 namespace SquashPointAPI.Helpers;
 
 public class QueryObject
 {
-    public int? LeagueId { get; set; } = null;
-    public int? PlayerId { get; set; } = null;
-    public string? SortBy { get; set; } = null;
-    public bool? isDescending { get; set; } = null;
+    public int PageNumber { get; set; } = 1;
+    public int PageSize { get; set; } = 50;
+    public string? GameStatus { get; set; } = null;
+
 }

@@ -20,13 +20,19 @@ public class PlayerRepository(DataContext context) : IPlayerRepository
             .ThenInclude(pg => pg.Game)
             .ThenInclude(g => g.PlayerGames)
             .ThenInclude(g => g.Player)
-            .FirstOrDefaultAsync(p => p.Id == playerId);
+            .FirstAsync(p => p.Id == playerId);
     }
     
     public async Task<ICollection<Game>> GetAllPlayerGamesAsync(int playerId)
     {
-        return await context.PlayerGames.Where(pg => pg.Player.Id == playerId).Include(p => p.Game).Select(pg => pg.Game).ToListAsync();
+        return await context.Games
+            .Include(g => g.League)
+            .Include(g => g.PlayerGames)
+            .ThenInclude(pg => pg.Player)
+            .Where(g => g.PlayerGames.Any(pg => pg.PlayerId == playerId))
+            .ToListAsync();
     }
+
 
     public async Task<Player> CreatePlayerAsync(Player player)
     {

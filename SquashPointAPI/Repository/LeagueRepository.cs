@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SquashPointAPI.Data;
 using SquashPointAPI.Dto.Player;
+using SquashPointAPI.Helpers;
 using SquashPointAPI.Interfaces;
 using SquashPointAPI.Models;
 
@@ -9,7 +10,7 @@ namespace SquashPointAPI.Repository;
 internal class LeagueRepository(DataContext context) : ILeagueRepository
 
 {
-    public async Task<ICollection<League>> GetAllLeaguesAsync()
+    public async Task<ICollection<League>> GetLeaguesAsync()
     {
         return await context.Leagues.OrderBy(l => l.Id).ToListAsync();
     }
@@ -24,7 +25,7 @@ internal class LeagueRepository(DataContext context) : ILeagueRepository
             .FirstAsync(l => l.Id == leagueId);
     }
 
-    public async Task<ICollection<Player>> GetAllLeaguePlayersAsync(int leagueId)
+    public async Task<ICollection<Player>> GetLeaguePlayersAsync(int leagueId)
     {
         return await context.Players
             .Where(p => p.PlayerLeagues.Any(pl => pl.LeagueId == leagueId))
@@ -34,12 +35,22 @@ internal class LeagueRepository(DataContext context) : ILeagueRepository
             .ToListAsync();
     }
 
-    public async Task<ICollection<Game>> GetAllLeagueGamesAsync(int leagueId)
+    public async Task<ICollection<Game>> GetLeagueGamesAsync(int leagueId, QueryObject query)
     {
-        return await context.Games
+        var games = context.Games
             .Where(g => g.League.Id == leagueId)
             .Include(g => g.League)
-            .ToListAsync();
+            .Include(g => g.PlayerGames)
+            .ThenInclude(pg => pg.Player)
+            .AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(query.GameStatus))
+        {
+            games = games.Where(g => g.Status.Equals(query.GameStatus));
+        }
+        
+        var skipNumber = (query.PageNumber - 1) * query.PageSize;
+        return await games.OrderByDescending(g => g.Date).Skip(skipNumber).Take(query.PageSize).ToListAsync();
     }
 
     public async Task<bool> LeagueExistsAsync(int leagueId)

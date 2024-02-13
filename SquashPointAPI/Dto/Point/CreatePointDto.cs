@@ -1,10 +1,10 @@
-﻿namespace SquashPointAPI.Models;
+﻿namespace SquashPointAPI.Dto.Point;
 
-public class Point
+public class CreatePointDto
 {
     public int Id { get; set; }
-    public Player Winner { get; set; }
+    public int WinnerId { get; set; }
     public string PointType { get; set; }
-    public Set Set { get; set; }
+    public int SetId { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }

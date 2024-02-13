@@ -12,5 +12,5 @@ public class PlayerDetailsDto
      public string Sex { get; set; }
      public string Email { get; set; }
      public List<LeagueDto> Leagues { get; set; }
-     public List<GameDetailsDto> Games { get; set; }
+     public List<GameDto> Games { get; set; }
  }

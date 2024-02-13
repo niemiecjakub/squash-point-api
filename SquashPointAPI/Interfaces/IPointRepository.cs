@@ -1,8 +1,10 @@
-﻿namespace SquashPointAPI.Interfaces;
+﻿using SquashPointAPI.Dto.Point;
+using SquashPointAPI.Models;
+
+namespace SquashPointAPI.Interfaces;
 
 public interface IPointRepository
 {
-    bool CreatePoint(int setId, string pointType);
+    Task<Point> CreatePointAsync(CreatePointDto createPointDto);
     bool UpdateWinner(int playerId);
-    bool Save();
 }

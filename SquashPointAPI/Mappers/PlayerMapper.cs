@@ -43,7 +43,7 @@ public static class PlayerMapper
             Sex = playerModel.Sex,
             Email = playerModel.Email,
             Leagues = playerModel.PlayerLeagues.Select(pl => pl.League.ToLeagueDto()).ToList(),
-            Games = playerModel.PlayerGames.Select(pg => pg.Game.ToGameDetailsDto()).ToList()
+            Games = playerModel.PlayerGames.Select(pg => pg.Game.ToGameDto()).ToList()
         };
     }
 

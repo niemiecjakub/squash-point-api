@@ -8,5 +8,5 @@ public class LeagueDetailsDto
     public int Id { get; set; }
     public string Name { get; set; }
     public List<LeaguePlayerDto> Players { get; set; }
-    public List<GameDetailsDto> Games { get; set; }
+    public List<GameDto> Games { get; set; }
 }
