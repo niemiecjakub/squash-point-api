@@ -25,7 +25,7 @@ public class PlayerRepository(DataContext context) : IPlayerRepository
     
     public async Task<ICollection<Game>> GetAllPlayerGamesAsync(int playerId)
     {
-        return await context.PlayerGames.Where(pg => pg.Player.Id == playerId).Select(pg => pg.Game).ToListAsync();
+        return await context.PlayerGames.Where(pg => pg.Player.Id == playerId).Include(p => p.Game).Select(pg => pg.Game).ToListAsync();
     }
 
     public async Task<Player> CreatePlayerAsync(Player player)

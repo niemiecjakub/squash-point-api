@@ -144,6 +144,9 @@ namespace SquashPointAPI.Migrations
                     b.Property<int>("PlayerId")
                         .HasColumnType("int");
 
+                    b.Property<int>("Score")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.HasIndex("LeagueId");

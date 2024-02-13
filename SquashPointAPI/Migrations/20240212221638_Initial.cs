@@ -77,7 +77,8 @@ namespace SquashPointAPI.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     PlayerId = table.Column<int>(type: "int", nullable: false),
-                    LeagueId = table.Column<int>(type: "int", nullable: false)
+                    LeagueId = table.Column<int>(type: "int", nullable: false),
+                    Score = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {

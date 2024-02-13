@@ -16,6 +16,4 @@ public class DataContext : DbContext
     public DbSet<Point> Point { get; set; }
     public DbSet<PlayerLeague> PlayerLeagues { get; set; }
     public DbSet<PlayerGame> PlayerGames { get; set; }
-    
-
 }

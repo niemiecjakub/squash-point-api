@@ -12,7 +12,7 @@ using SquashPointAPI.Data;
 namespace SquashPointAPI.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20240202172903_Initial")]
+    [Migration("20240212221638_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -145,6 +145,9 @@ namespace SquashPointAPI.Migrations
                         .HasColumnType("int");
 
                     b.Property<int>("PlayerId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Score")
                         .HasColumnType("int");
 
                     b.HasKey("Id");

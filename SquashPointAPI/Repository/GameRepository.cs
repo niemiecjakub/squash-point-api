@@ -10,7 +10,7 @@ public class GameRepository(DataContext context) : IGameRepository
 {
     public async Task<ICollection<Game>> GetAllGamesAsync()
     {
-        return await context.Games.OrderBy(g => g.Id).ToListAsync();
+        return await context.Games.OrderBy(g => g.Id).Include(g => g.League).ToListAsync();
     }
 
     public async Task<Game> GetGameByIdAsync(int gameId)
@@ -18,6 +18,7 @@ public class GameRepository(DataContext context) : IGameRepository
         return await context.Games
             .Include(g => g.PlayerGames)
             .ThenInclude(pg => pg.Player)
+            .Include(g =>g.League)
             .FirstOrDefaultAsync(g => g.Id == gameId);
     }
 
@@ -52,6 +53,7 @@ public class GameRepository(DataContext context) : IGameRepository
         await context.PlayerGames.AddAsync(playerGame1);
         await context.PlayerGames.AddAsync(playerGame2);
         await context.SaveChangesAsync();
+        
         return newGame;
     }
 }

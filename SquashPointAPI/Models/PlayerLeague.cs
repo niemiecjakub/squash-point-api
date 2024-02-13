@@ -7,4 +7,5 @@ public class PlayerLeague
     public int LeagueId { get; set; }
     public Player Player { get; set; }
     public League League { get; set; }
+    public int Score { get; set; }
 }

@@ -23,14 +23,14 @@ public static class LeagueMapper
             Name = leagueDto.Name,
         };
     }
-    
-    public static LeagueDetailsDto ToLeagueDetailsDto(this League leagueModel)
+
+    public static LeagueDetailsDto ToLeagueDetailsDto(this League leagueModel, int leagueId)
     {
         return new LeagueDetailsDto
         {
             Id = leagueModel.Id,
             Name = leagueModel.Name,
-            Players = leagueModel.PlayerLeagues.Select(pl => pl.Player.ToPlayerDto()).ToList(),
+            Players = leagueModel.PlayerLeagues.Select(pl => pl.Player.ToLeaguePlayerDto(leagueId)).ToList(),
             Games = leagueModel.Games.Select(g => g.ToGameDetailsDto()).ToList(),
         };
     }

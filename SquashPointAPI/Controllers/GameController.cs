@@ -9,17 +9,16 @@ namespace SquashPointAPI.Controllers;
 [ApiController]
 public class GameController(IGameRepository gameRepository) : Controller
 {
-    
     [HttpGet("game-list")]
     [ProducesResponseType(200, Type = typeof(IEnumerable<Game>))]
     public async Task<IActionResult> GetAllGames()
     {
         var games = await gameRepository.GetAllGamesAsync();
         var gameDtos = games.Select(g => g.ToGameDto()).ToList();
-        
+
         return Ok(gameDtos);
     }
-    
+
     [HttpGet("{gameId}")]
     [ProducesResponseType(200, Type = typeof(Game))]
     [ProducesResponseType(400)]
@@ -29,30 +28,40 @@ public class GameController(IGameRepository gameRepository) : Controller
         {
             return BadRequest(ModelState);
         }
-        
+
         if (!await gameRepository.GameExistsAsync(gameId))
         {
             return NotFound();
         }
-        
+
         var game = await gameRepository.GetGameByIdAsync(gameId);
         var gameDto = game.ToGameDetailsDto();
-        
+
         return Ok(gameDto);
     }
-    
+
     [HttpPost]
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]
-    public async Task<IActionResult> CreateGame([FromQuery] int leagueId, [FromQuery] int player1Id, [FromQuery] int player2Id, [FromQuery] int year, [FromQuery] int month, [FromQuery] int day, [FromQuery] int hour, [FromQuery] int minute)
+    public async Task<IActionResult> CreateGame([FromQuery] int leagueId, [FromQuery] int player1Id,
+        [FromQuery] int player2Id, [FromQuery] int year, [FromQuery] int month, [FromQuery] int day,
+        [FromQuery] int hour, [FromQuery] int minute)
     {
         if (!ModelState.IsValid)
+        {
             return BadRequest(ModelState);
-        
+        }
+
+        if (player1Id == player2Id)
+        {
+            return BadRequest(ModelState);
+        }
+
         DateTime date = new DateTime(year, month, day, hour, minute, 0);
+        
         var game = await gameRepository.CreateGameAsync(leagueId, player1Id, player2Id, date);
         var gameDto = game.ToGameDto();
-        
+
         return Ok(gameDto);
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SquashPointAPI.Data;
+using SquashPointAPI.Dto.Player;
 using SquashPointAPI.Interfaces;
 using SquashPointAPI.Models;
 
@@ -25,9 +26,30 @@ internal class LeagueRepository(DataContext context) : ILeagueRepository
 
     public async Task<ICollection<Player>> GetAllLeaguePlayersAsync(int leagueId)
     {
-        return await context.PlayerLeagues.Where(pl => pl.League.Id == leagueId).Select(pl => pl.Player).ToListAsync();
+        // return await context.PlayerLeagues
+        //     .Where(pl => pl.League.Id == leagueId)
+        //     .Select(pl => pl.Player)
+        //     .ToListAsync();
+
+
+        // return await context.Players
+        //     .Include(p => p.PlayerLeagues)
+        //     .ThenInclude(pl => pl.League)
+        //     .Include(p => p.PlayerGames)
+        //     .ThenInclude(pg => pg.Game)
+        //     .Where(p => p.PlayerLeagues.Any(pl => pl.LeagueId == leagueId))
+        //     .Where(p => p.PlayerGames.Any(pg => pg.Game.League.Id == leagueId))
+        //     .ToListAsync();
+        
+        return await context.Players
+            .Include(p => p.PlayerLeagues)
+            .ThenInclude(pl => pl.League)
+            .Include(p => p.PlayerGames)
+            .ThenInclude(pg => pg.Game)
+            .Where(p => p.PlayerLeagues.Any(pl => pl.LeagueId == leagueId))
+            .ToListAsync();
     }
-    
+
     public async Task<ICollection<Game>> GetAllLeagueGamesAsync(int leagueId)
     {
         return await context.Games.Where(g => g.League.Id == leagueId).ToListAsync();
@@ -52,7 +74,8 @@ internal class LeagueRepository(DataContext context) : ILeagueRepository
         var playerLeague = new PlayerLeague()
         {
             Player = player,
-            League = league
+            League = league,
+            Score = 0
         };
         await context.AddAsync(playerLeague);
         await context.SaveChangesAsync();
@@ -63,5 +86,4 @@ internal class LeagueRepository(DataContext context) : ILeagueRepository
     {
         return await context.PlayerLeagues.AnyAsync(pl => pl.LeagueId == leagueId && pl.PlayerId == playerId);
     }
-
 }

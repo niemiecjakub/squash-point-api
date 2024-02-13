@@ -15,6 +15,7 @@ public static class GameMapper
             Status = gameModel.Status,
             Winner = gameModel.Winner?.ToPlayerDto(),
             CreatedAt = gameModel.CreatedAt,
+            LeagueId = gameModel.League.Id
         };
     }
     
@@ -24,6 +25,7 @@ public static class GameMapper
         {
             Id = gameModel.Id,
             CreatedAt = gameModel.CreatedAt,
+            LeagueId = gameModel.League.Id,
             Status = gameModel.Status,
             Date = gameModel.Date,
             Winner = gameModel.Winner?.ToPlayerDto(),
