@@ -15,5 +15,4 @@ public class GameDetailsDto
     public ICollection<PlayerDto> Players { get; set; }
 
     public ICollection<SetDto> Sets { get; set; }
-    public ICollection<PointDto> Points { get; set; }
 }

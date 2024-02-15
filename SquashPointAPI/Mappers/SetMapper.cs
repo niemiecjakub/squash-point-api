@@ -12,7 +12,7 @@ public static class SetMapper
             Id = setModel.Id,
             Winner = setModel.Winner?.ToPlayerDto(),
             CreatedAt = setModel.CreatedAt,
-            Points = setModel.Points.Select(p => p.ToPointDto()).ToList()
+            Points = setModel.Points.Select(p => p.ToPointDto()).OrderByDescending(p => p.CreatedAt).ToList()
         };
     }
     

@@ -24,6 +24,9 @@ public class GameRepository(DataContext context) : IGameRepository
             .Include(g => g.PlayerGames)
             .ThenInclude(pg => pg.Player)
             .Include(g =>g.League)
+            .Include(g => g.Sets)
+            .ThenInclude(s => s.Points)
+            .ThenInclude(p => p.Winner)
             .FirstAsync(g => g.Id == gameId);
     }
 

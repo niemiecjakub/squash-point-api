@@ -31,7 +31,8 @@ public static class GameMapper
             Status = gameModel.Status,
             Date = gameModel.Date,
             Winner = gameModel.Winner?.ToPlayerDto(),
-            Players = gameModel.PlayerGames.Select(pg => pg.Player.ToPlayerDto()).ToList()
+            Players = gameModel.PlayerGames.Select(pg => pg.Player.ToPlayerDto()).ToList(),
+            Sets = gameModel.Sets.Select(s => s.ToSetDto()).OrderByDescending(s => s.CreatedAt).ToList(),
         };
     }
 }
