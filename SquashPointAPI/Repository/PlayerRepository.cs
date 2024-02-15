@@ -11,6 +11,7 @@ public class PlayerRepository(DataContext context) : IPlayerRepository
     {
         return await context.Players.OrderBy(p => p.Id).ToListAsync();
     }
+    
     public async Task<Player> GetPlayerAsync(int playerId)
     {
         return await context.Players
@@ -32,14 +33,14 @@ public class PlayerRepository(DataContext context) : IPlayerRepository
             .Where(g => g.PlayerGames.Any(pg => pg.PlayerId == playerId))
             .ToListAsync();
     }
-
-
+    
     public async Task<Player> CreatePlayerAsync(Player player)
     {
         await context.AddAsync(player);
         await context.SaveChangesAsync();
         return player;
     }
+    
     public async Task<bool> PlayerExistsAsync(int playerId)
     {
         return await context.Players.AnyAsync(p => p.Id == playerId);

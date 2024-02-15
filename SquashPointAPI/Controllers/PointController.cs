@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SquashPointAPI.Dto.Point;
 using SquashPointAPI.Interfaces;
+using SquashPointAPI.Mappers;
 using SquashPointAPI.Models;
 
 namespace SquashPointAPI.Controllers;
@@ -10,19 +11,20 @@ public class PointController(ISetRepository setRepository, IPointRepository poin
     [HttpPost("addPoint")]
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]
-    public async Task<IActionResult> CreatePoint([FromQuery] CreatePointDto ceatePointDto)
+    public async Task<IActionResult> CreatePoint([FromQuery] CreatePointDto pointCreate)
     {
         if (!ModelState.IsValid)
         {
             return BadRequest(ModelState);
         }
 
-        if (!await setRepository.SetExistsAsync(ceatePointDto.SetId))
+        if (!await setRepository.SetExistsAsync(pointCreate.SetId))
         {
             return NotFound(); 
         }
 
-        await pointRepository.CreatePointAsync(ceatePointDto);
-        return Ok("Set created");
+        var point = await pointRepository.CreatePointAsync(pointCreate);
+        var pointDto = point.ToPointDto();
+        return Ok(pointDto);
     }
 }

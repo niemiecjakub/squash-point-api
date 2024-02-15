@@ -84,7 +84,7 @@ public class PlayerController(IPlayerRepository playerRepository) : Controller
             return BadRequest("Email with this account already exists");
         }
         
-        var player = playerCreate.ToPlayerFromCreateDTO();
+        var player = playerCreate.ToPlayerFromCreateDto();
         await playerRepository.CreatePlayerAsync(player);
         var playerDto = player.ToPlayerDto();
 

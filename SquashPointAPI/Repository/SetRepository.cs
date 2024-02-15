@@ -2,24 +2,22 @@
 using SquashPointAPI.Data;
 using SquashPointAPI.Dto.Set;
 using SquashPointAPI.Interfaces;
+using SquashPointAPI.Mappers;
 using SquashPointAPI.Models;
 
 namespace SquashPointAPI.Repository;
 
 public class SetRepository(DataContext context) : ISetRepository
 {
-    public async Task<Set> CreateSetAsync(CreateSetDto createSetDto)
+    public async Task<Set> CreateSetAsync(CreateSetDto setCreate)
     {
-        var game = await context.Games.FindAsync(createSetDto.GameId);
-        var set = new Set()
-        {
-            Game = game,
-            Winner = null
-        };
-        
-        context.Set.Add(set);
+        var game = await context.Games.FirstAsync(g => g.Id == setCreate.GameId);
+        var winner = await context.Players.FirstOrDefaultAsync(p => p.Id == setCreate.WinnerId);
+        var set = setCreate.ToSetFromCreateDto(game, winner);
+
+        await context.AddAsync(set);
         await context.SaveChangesAsync();
-        
+
         return set;
     }
 

@@ -12,19 +12,20 @@ public class SetController(ISetRepository setRepository, IGameRepository gameRep
     [HttpPost("addSet")]
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]
-    public async Task<IActionResult> CreateSet([FromQuery] CreateSetDto createSetDto)
+    public async Task<IActionResult> CreateSet([FromQuery] CreateSetDto setCreate)
     {
         if (!ModelState.IsValid)
         {
             return BadRequest(ModelState);
         }
 
-        if (!await gameRepository.GameExistsAsync(createSetDto.GameId))
+        if (!await gameRepository.GameExistsAsync(setCreate.GameId))
         {
             return NotFound(); 
         }
-
-        await setRepository.CreateSetAsync(createSetDto);
-        return Ok("Set created");
+        
+        var set = await setRepository.CreateSetAsync(setCreate);
+        var setDto = set.ToSetDto();
+        return Ok(setDto);
     }
 }

@@ -7,6 +7,6 @@ public class SetDto
 {
     public int Id { get; set; }
     public DateTime CreatedAt { get; set; }
-    public PlayerDto Winner { get; set; }
-    public ICollection<PointDto> Points { get; set; }
+    public PlayerDto? Winner { get; set; }
+    public ICollection<PointDto> Points { get; set; } = new List<PointDto>();
 }
