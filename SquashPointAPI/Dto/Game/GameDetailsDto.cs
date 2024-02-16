@@ -8,7 +8,7 @@ public class GameDetailsDto
 {
     public int Id { get; set; }
     public int LeagueId { get; set; }
-    public string Status { get; set; }
+    public string? Status { get; set; }
     public PlayerDto? Winner { get; set; }
     public DateTime Date { get; set; }
     public DateTime CreatedAt { get; set; }

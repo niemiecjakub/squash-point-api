@@ -6,9 +6,11 @@ using SquashPointAPI.Models;
 
 namespace SquashPointAPI.Controllers;
 
+[Route("api/[controller]")]
+[ApiController]
 public class PointController(ISetRepository setRepository, IPointRepository pointRepository) : Controller
 {
-    [HttpPost("addPoint")]
+    [HttpPost]
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]
     public async Task<IActionResult> CreatePoint([FromQuery] CreatePointDto pointCreate)

@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using SquashPointAPI.Dto.Game;
 using SquashPointAPI.Interfaces;
 using SquashPointAPI.Mappers;
 using SquashPointAPI.Models;
@@ -58,10 +59,27 @@ public class GameController(IGameRepository gameRepository) : Controller
         }
 
         DateTime date = new DateTime(year, month, day, hour, minute, 0);
-        
+
         var game = await gameRepository.CreateGameAsync(leagueId, player1Id, player2Id, date);
         var gameDto = game.ToGameDto();
 
         return Ok(gameDto);
+    }
+    
+    [HttpPut]
+    [Route("{id:int}")]
+    public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateGameRequestDto updateDto)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
+        var game = await gameRepository.UpdateAsync(id, updateDto);
+
+        if (game == null)
+        {
+            return NotFound("Comment not found");
+        }
+
+        return Ok(game.ToGameDto());
     }
 }

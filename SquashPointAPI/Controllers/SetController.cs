@@ -9,7 +9,7 @@ namespace SquashPointAPI.Controllers;
 [ApiController]
 public class SetController(ISetRepository setRepository, IGameRepository gameRepository) : Controller
 {
-    [HttpPost("addSet")]
+    [HttpPost]
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]
     public async Task<IActionResult> CreateSet([FromQuery] CreateSetDto setCreate)

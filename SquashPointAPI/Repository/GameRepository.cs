@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SquashPointAPI.Data;
 using SquashPointAPI.Dto;
+using SquashPointAPI.Dto.Game;
 using SquashPointAPI.Interfaces;
 using SquashPointAPI.Models;
 
@@ -63,5 +64,29 @@ public class GameRepository(DataContext context) : IGameRepository
         await context.SaveChangesAsync();
         
         return newGame;
+    }
+
+    public async Task<Game?> UpdateAsync(int gameId, UpdateGameRequestDto updateDto)
+    {
+        var existingGame = await context.Games
+            .Include(g => g.PlayerGames)
+            .ThenInclude(pg => pg.Player)
+            .Include(g =>g.League)
+            .Include(g => g.Sets)
+            .ThenInclude(s => s.Points)
+            .ThenInclude(p => p.Winner)
+            .FirstAsync(g => g.Id == gameId);
+
+        if (existingGame == null)
+        {
+            return null;
+        }
+
+        existingGame.Status = updateDto.Status;
+        existingGame.Winner = await context.Players.FindAsync(updateDto.WinnerId);
+            
+        await context.SaveChangesAsync();
+
+        return existingGame;
     }
 }
