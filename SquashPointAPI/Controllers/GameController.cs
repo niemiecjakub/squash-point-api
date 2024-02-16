@@ -67,13 +67,13 @@ public class GameController(IGameRepository gameRepository) : Controller
     }
     
     [HttpPut]
-    [Route("{id:int}")]
-    public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateGameRequestDto updateDto)
+    [Route("{gameId:int}")]
+    public async Task<IActionResult> Update([FromRoute] int gameId, [FromBody] UpdateGameRequestDto updateDto)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        var game = await gameRepository.UpdateAsync(id, updateDto);
+        var game = await gameRepository.UpdateAsync(gameId, updateDto);
 
         if (game == null)
         {

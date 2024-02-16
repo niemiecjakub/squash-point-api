@@ -28,4 +28,22 @@ public class SetController(ISetRepository setRepository, IGameRepository gameRep
         var setDto = set.ToSetDto();
         return Ok(setDto);
     }
+    
+    [HttpPut]
+    [Route("{setId:int}")]
+    public async Task<IActionResult> Update([FromRoute] int setId)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
+        // var game = await gameRepository.UpdateAsync(gameId, updateDto);
+
+        // if (game == null)
+        // {
+        //     return NotFound("Comment not found");
+        // }
+
+        return Ok("ok");
+        // return Ok(game.ToGameDto());
+    }
 }
