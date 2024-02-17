@@ -24,7 +24,7 @@ public static class GameMapper
     public static GameDetailsDto ToGameDetailsDto(this Game gameModel)
     {
         var players = gameModel.PlayerGames.Select(pg => pg.Player).ToList();
-        var points = gameModel.Sets.SelectMany(s => s.Points).ToList();
+        // var points = gameModel.Sets.SelectMany(s => s.Points).ToList();
         return new GameDetailsDto
         {
             Id = gameModel.Id,

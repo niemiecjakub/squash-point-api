@@ -8,7 +8,7 @@ public interface ILeagueRepository
     Task<ICollection<League>> GetLeaguesAsync();
     Task<League> GetLeagueByIdAsync(int leagueId);
     Task<ICollection<Player>> GetLeaguePlayersAsync(int leagueId);
-    Task<ICollection<Game>> GetLeagueGamesAsync(int leagueId, QueryObject query);
+    Task<ICollection<Game>> GetLeagueGamesAsync(int leagueId, GameQueryObject gameQuery);
     Task<bool> LeagueExistsAsync(int leagueId);
     Task<League> CreateLeagueAsync(League league);
     Task<PlayerLeague> AddPlayerToLeagueAsync(int leagueId, int playerId);

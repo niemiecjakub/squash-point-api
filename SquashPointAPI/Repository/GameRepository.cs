@@ -2,6 +2,7 @@
 using SquashPointAPI.Data;
 using SquashPointAPI.Dto;
 using SquashPointAPI.Dto.Game;
+using SquashPointAPI.Helpers;
 using SquashPointAPI.Interfaces;
 using SquashPointAPI.Models;
 
@@ -9,7 +10,7 @@ namespace SquashPointAPI.Repository;
 
 public class GameRepository(DataContext context) : IGameRepository
 {
-    public async Task<ICollection<Game>> GetAllGamesAsync()
+    public async Task<ICollection<Game>> GetGamesAsync(GameQueryObject gameQuery)
     {
         return await context.Games
             .OrderByDescending(g => g.CreatedAt)
@@ -24,7 +25,7 @@ public class GameRepository(DataContext context) : IGameRepository
         return await context.Games
             .Include(g => g.PlayerGames)
             .ThenInclude(pg => pg.Player)
-            .Include(g =>g.League)
+            .Include(g => g.League)
             .Include(g => g.Sets)
             .ThenInclude(s => s.Points)
             .ThenInclude(p => p.Winner)
@@ -35,7 +36,7 @@ public class GameRepository(DataContext context) : IGameRepository
     {
         return await context.Games.AnyAsync(g => g.Id == gameId);
     }
-    
+
     public async Task<Game> CreateGameAsync(int leagueId, int player1Id, int player2Id, DateTime date)
     {
         var league = await context.Leagues.FindAsync(leagueId);
@@ -62,7 +63,7 @@ public class GameRepository(DataContext context) : IGameRepository
         await context.PlayerGames.AddAsync(playerGame1);
         await context.PlayerGames.AddAsync(playerGame2);
         await context.SaveChangesAsync();
-        
+
         return newGame;
     }
 
@@ -71,7 +72,7 @@ public class GameRepository(DataContext context) : IGameRepository
         var existingGame = await context.Games
             .Include(g => g.PlayerGames)
             .ThenInclude(pg => pg.Player)
-            .Include(g =>g.League)
+            .Include(g => g.League)
             .Include(g => g.Sets)
             .ThenInclude(s => s.Points)
             .ThenInclude(p => p.Winner)
@@ -84,7 +85,7 @@ public class GameRepository(DataContext context) : IGameRepository
 
         existingGame.Status = updateDto.Status;
         existingGame.Winner = await context.Players.FindAsync(updateDto.WinnerId);
-            
+
         await context.SaveChangesAsync();
 
         return existingGame;

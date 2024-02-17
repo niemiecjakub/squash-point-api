@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SquashPointAPI.Dto.Game;
+using SquashPointAPI.Helpers;
 using SquashPointAPI.Interfaces;
 using SquashPointAPI.Mappers;
 using SquashPointAPI.Models;
@@ -12,9 +13,9 @@ public class GameController(IGameRepository gameRepository) : Controller
 {
     [HttpGet("game-list")]
     [ProducesResponseType(200, Type = typeof(IEnumerable<Game>))]
-    public async Task<IActionResult> GetAllGames()
+    public async Task<IActionResult> GetAllGames([FromQuery] GameQueryObject gameGameQuery)
     {
-        var games = await gameRepository.GetAllGamesAsync();
+        var games = await gameRepository.GetGamesAsync(gameGameQuery);
         var gameDtos = games.Select(g => g.ToGameDto()).ToList();
 
         return Ok(gameDtos);

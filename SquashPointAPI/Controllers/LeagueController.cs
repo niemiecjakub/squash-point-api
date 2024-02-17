@@ -73,7 +73,7 @@ public class LeagueController(ILeagueRepository leagueRepository) : Controller
     [HttpGet("{leagueId}/league-games")]
     [ProducesResponseType(200, Type = typeof(IEnumerable<GameDto>))]
     [ProducesResponseType(400)]
-    public async Task<IActionResult> GetAllLeagueGames(int leagueId, [FromQuery] QueryObject query)
+    public async Task<IActionResult> GetAllLeagueGames(int leagueId, [FromQuery] GameQueryObject gameQuery)
     {
         if (!ModelState.IsValid)
         {
@@ -85,7 +85,7 @@ public class LeagueController(ILeagueRepository leagueRepository) : Controller
             return NotFound();
         }
 
-        var games = await leagueRepository.GetLeagueGamesAsync(leagueId, query);
+        var games = await leagueRepository.GetLeagueGamesAsync(leagueId, gameQuery);
         var gameDtos = games.Select(g => g.ToGameDto()).ToList();
 
         return Ok(gameDtos);

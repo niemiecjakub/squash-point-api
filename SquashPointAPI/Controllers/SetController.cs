@@ -31,19 +31,18 @@ public class SetController(ISetRepository setRepository, IGameRepository gameRep
     
     [HttpPut]
     [Route("{setId:int}")]
-    public async Task<IActionResult> Update([FromRoute] int setId)
+    public async Task<IActionResult> Update([FromRoute] int setId, [FromBody] UpdateSetRequestDto updateDto)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
+        
+        if (!await setRepository.SetExistsAsync(setId))
+        {
+            return NotFound("Set not found");
+        }
 
-        // var game = await gameRepository.UpdateAsync(gameId, updateDto);
-
-        // if (game == null)
-        // {
-        //     return NotFound("Comment not found");
-        // }
-
-        return Ok("ok");
-        // return Ok(game.ToGameDto());
+        var set = await setRepository.UpdateWinnerAsync(setId, updateDto);
+        
+        return Ok(set.ToSetDto());
     }
 }

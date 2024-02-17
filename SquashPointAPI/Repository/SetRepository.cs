@@ -21,9 +21,14 @@ public class SetRepository(DataContext context) : ISetRepository
         return set;
     }
 
-    public async Task<Set> UpdateWinnerAsync(int playerId)
+    public async Task<Set> UpdateWinnerAsync(int setId, UpdateSetRequestDto updateDto)
     {
-        throw new NotImplementedException();
+        var set = await context.Set.FirstAsync(s => s.Id == setId);
+        set.Winner = await context.Players.FirstAsync(p => p.Id == updateDto.WinnerId);
+        
+        await context.SaveChangesAsync();
+
+        return set;
     }
 
     public async Task<bool> SetExistsAsync(int setId)

@@ -35,7 +35,7 @@ internal class LeagueRepository(DataContext context) : ILeagueRepository
             .ToListAsync();
     }
 
-    public async Task<ICollection<Game>> GetLeagueGamesAsync(int leagueId, QueryObject query)
+    public async Task<ICollection<Game>> GetLeagueGamesAsync(int leagueId, GameQueryObject gameQuery)
     {
         var games = context.Games
             .Where(g => g.League.Id == leagueId)
@@ -44,13 +44,13 @@ internal class LeagueRepository(DataContext context) : ILeagueRepository
             .ThenInclude(pg => pg.Player)
             .AsQueryable();
 
-        if (!string.IsNullOrWhiteSpace(query.GameStatus))
+        if (!string.IsNullOrWhiteSpace(gameQuery.GameStatus))
         {
-            games = games.Where(g => g.Status.Equals(query.GameStatus));
+            games = games.Where(g => g.Status.Equals(gameQuery.GameStatus));
         }
         
-        var skipNumber = (query.PageNumber - 1) * query.PageSize;
-        return await games.OrderByDescending(g => g.Date).Skip(skipNumber).Take(query.PageSize).ToListAsync();
+        var skipNumber = (gameQuery.PageNumber - 1) * gameQuery.PageSize;
+        return await games.OrderByDescending(g => g.Date).Skip(skipNumber).Take(gameQuery.PageSize).ToListAsync();
     }
 
     public async Task<bool> LeagueExistsAsync(int leagueId)
