@@ -10,5 +10,6 @@ public interface IGameRepository
     Task<Game> GetGameByIdAsync(int gameId);
     Task<bool> GameExistsAsync(int gameId);
     Task<Game> CreateGameAsync(int leagueId, int player1Id, int player2Id, DateTime date);
-    Task<Game?> UpdateAsync(int id, UpdateGameRequestDto updateDto);
+    Task<Game?> UpdateAsync(int gameId, UpdateGameRequestDto updateDto);
+    Task<Game?> DeleteAsync(int gameId);
 }

@@ -83,4 +83,21 @@ public class GameController(IGameRepository gameRepository) : Controller
 
         return Ok(game.ToGameDto());
     }
+    
+    [HttpDelete]
+    [Route("{gameId:int}")]
+    public async Task<IActionResult> Delete([FromRoute] int gameId)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
+        var game = await gameRepository.DeleteAsync(gameId);
+
+        if (game == null)
+        {
+            return NotFound("Game doesn't exist");
+        }
+
+        return Ok(game);
+    }
 }

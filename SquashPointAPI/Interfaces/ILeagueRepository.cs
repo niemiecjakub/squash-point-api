@@ -13,4 +13,5 @@ public interface ILeagueRepository
     Task<League> CreateLeagueAsync(League league);
     Task<PlayerLeague> AddPlayerToLeagueAsync(int leagueId, int playerId);
     Task<bool> IsPlayerInLeagueAsync(int leagueId, int playerId);
+    Task<PlayerLeague?> DeleteAsync(int leagueId, int playerId);
 } 

@@ -55,6 +55,11 @@ public class LeagueController(ILeagueRepository leagueRepository) : Controller
     [ProducesResponseType(400)]
     public async Task<IActionResult> GetAllLeaguePlayers(int leagueId)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+        
         if (!await leagueRepository.LeagueExistsAsync(leagueId))
         {
             return NotFound();
@@ -62,10 +67,6 @@ public class LeagueController(ILeagueRepository leagueRepository) : Controller
 
         var leaguePlayers = await leagueRepository.GetLeaguePlayersAsync(leagueId);
         var leaguePlayerDtos = leaguePlayers.Select(p => p.ToLeaguePlayerDto()).OrderByDescending(p => p.Score).ToList();
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
 
         return Ok(leaguePlayerDtos);
     }
@@ -137,7 +138,24 @@ public class LeagueController(ILeagueRepository leagueRepository) : Controller
             return StatusCode(422, ModelState);
         }
 
-        var playerLeague = await leagueRepository.AddPlayerToLeagueAsync(leagueId, playerId);
+        await leagueRepository.AddPlayerToLeagueAsync(leagueId, playerId);
         return Ok("Succesfully added");
+    }
+    
+    [HttpDelete]
+    [Route("removePlayer")]
+    public async Task<IActionResult> Delete([FromQuery] int leagueId, [FromQuery] int playerId)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
+        var playerLeague = await leagueRepository.DeleteAsync(leagueId, playerId);
+
+        if (playerLeague == null)
+        {
+            return NotFound("This player isnt part of this league");
+        }
+
+        return Ok("Player removed");
     }
 }

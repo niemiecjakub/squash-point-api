@@ -84,4 +84,20 @@ internal class LeagueRepository(DataContext context) : ILeagueRepository
     {
         return await context.PlayerLeagues.AnyAsync(pl => pl.LeagueId == leagueId && pl.PlayerId == playerId);
     }
+
+    public async Task<PlayerLeague?> DeleteAsync(int leagueId, int playerId)
+    {
+        var playerLeague = await context.PlayerLeagues
+            .Where(pl => pl.LeagueId == leagueId)
+            .FirstOrDefaultAsync(pl => pl.PlayerId == playerId);
+
+        if (playerLeague == null)
+        {
+            return null;
+        }
+
+        context.PlayerLeagues.Remove(playerLeague);
+        await context.SaveChangesAsync();
+        return playerLeague;
+    }
 }

@@ -12,12 +12,35 @@ public class GameRepository(DataContext context) : IGameRepository
 {
     public async Task<ICollection<Game>> GetGamesAsync(GameQueryObject gameQuery)
     {
-        return await context.Games
+        var games = context.Games
             .OrderByDescending(g => g.CreatedAt)
             .Include(g => g.League)
             .Include(g => g.PlayerGames)
             .ThenInclude(pg => pg.Player)
-            .ToListAsync();
+            .AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(gameQuery.GameStatus))
+        {
+            games = games.Where(g => g.Status.Equals(gameQuery.GameStatus));
+        }
+
+        if (gameQuery.WinnerId != null)
+        {
+            games = games.Where(g => g.Winner.Id.Equals(gameQuery.WinnerId));
+        }
+
+        if (gameQuery.OrderByScheduledDate)
+        {
+            games = games.OrderByDescending(g => g.Date);
+        }
+
+        if (gameQuery.OrderByCreateDate)
+        {
+            games = games.OrderByDescending(g => g.CreatedAt);
+        }
+
+        var skipNumber = (gameQuery.PageNumber - 1) * gameQuery.PageSize;
+        return await games.Skip(skipNumber).Take(gameQuery.PageSize).ToListAsync();
     }
 
     public async Task<Game> GetGameByIdAsync(int gameId)
@@ -78,16 +101,25 @@ public class GameRepository(DataContext context) : IGameRepository
             .ThenInclude(p => p.Winner)
             .FirstAsync(g => g.Id == gameId);
 
-        if (existingGame == null)
-        {
-            return null;
-        }
-
         existingGame.Status = updateDto.Status;
         existingGame.Winner = await context.Players.FindAsync(updateDto.WinnerId);
 
         await context.SaveChangesAsync();
 
         return existingGame;
+    }
+
+    public async Task<Game?> DeleteAsync(int gameId)
+    {
+        var game = await context.Games.FirstOrDefaultAsync(g => g.Id == gameId);
+
+        if (game == null)
+        {
+            return null;
+        }
+
+        context.Games.Remove(game);
+        await context.SaveChangesAsync();
+        return game;
     }
 }
