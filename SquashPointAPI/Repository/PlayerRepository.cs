@@ -19,8 +19,7 @@ public class PlayerRepository(DataContext context) : IPlayerRepository
             .ThenInclude(pg => pg.League)
             .Include(p => p.PlayerGames)
             .ThenInclude(pg => pg.Game)
-            .ThenInclude(g => g.PlayerGames)
-            .ThenInclude(g => g.Player)
+            .ThenInclude(pg => pg.League)
             .FirstAsync(p => p.Id == playerId);
     }
     
