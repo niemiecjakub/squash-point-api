@@ -14,35 +14,26 @@ public class SetController(ISetRepository setRepository, IGameRepository gameRep
     [ProducesResponseType(400)]
     public async Task<IActionResult> CreateSet([FromQuery] CreateSetDto setCreate)
     {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
+        if (!ModelState.IsValid) return BadRequest(ModelState);
 
-        if (!await gameRepository.GameExistsAsync(setCreate.GameId))
-        {
-            return NotFound(); 
-        }
-        
+        if (!await gameRepository.GameExistsAsync(setCreate.GameId)) return NotFound();
+
         var set = await setRepository.CreateSetAsync(setCreate);
         var setDto = set.ToSetDto();
         return Ok(setDto);
     }
-    
+
     [HttpPut]
     [Route("{setId:int}")]
     public async Task<IActionResult> Update([FromRoute] int setId, [FromBody] UpdateSetRequestDto updateDto)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
-        
-        if (!await setRepository.SetExistsAsync(setId))
-        {
-            return NotFound("Set not found");
-        }
+
+        if (!await setRepository.SetExistsAsync(setId)) return NotFound("Set not found");
 
         var set = await setRepository.UpdateWinnerAsync(setId, updateDto);
-        
+
         return Ok(set.ToSetDto());
     }
 }

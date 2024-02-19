@@ -20,10 +20,7 @@ public class LeagueController(ILeagueRepository leagueRepository) : Controller
         var leagues = await leagueRepository.GetLeaguesAsync();
         var leagueDtos = leagues.Select(l => l.ToLeagueDto()).ToList();
 
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
+        if (!ModelState.IsValid) return BadRequest(ModelState);
 
         return Ok(leagueDtos);
     }
@@ -33,15 +30,9 @@ public class LeagueController(ILeagueRepository leagueRepository) : Controller
     [ProducesResponseType(400)]
     public async Task<IActionResult> GetLeagueById(int leagueId)
     {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
+        if (!ModelState.IsValid) return BadRequest(ModelState);
 
-        if (!await leagueRepository.LeagueExistsAsync(leagueId))
-        {
-            return NotFound();
-        }
+        if (!await leagueRepository.LeagueExistsAsync(leagueId)) return NotFound();
 
         var league = await leagueRepository.GetLeagueByIdAsync(leagueId);
         var leagueDetailsDto = league.ToLeagueDetailsDto();
@@ -49,24 +40,19 @@ public class LeagueController(ILeagueRepository leagueRepository) : Controller
         return Ok(leagueDetailsDto);
     }
 
-    
+
     [HttpGet("{leagueId}/player-list")]
     [ProducesResponseType(200, Type = typeof(IEnumerable<LeaguePlayerDto>))]
     [ProducesResponseType(400)]
     public async Task<IActionResult> GetAllLeaguePlayers(int leagueId)
     {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-        
-        if (!await leagueRepository.LeagueExistsAsync(leagueId))
-        {
-            return NotFound();
-        }
+        if (!ModelState.IsValid) return BadRequest(ModelState);
+
+        if (!await leagueRepository.LeagueExistsAsync(leagueId)) return NotFound();
 
         var leaguePlayers = await leagueRepository.GetLeaguePlayersAsync(leagueId);
-        var leaguePlayerDtos = leaguePlayers.Select(p => p.ToLeaguePlayerDto()).OrderByDescending(p => p.Score).ToList();
+        var leaguePlayerDtos =
+            leaguePlayers.Select(p => p.ToLeaguePlayerDto()).OrderByDescending(p => p.Score).ToList();
 
         return Ok(leaguePlayerDtos);
     }
@@ -76,15 +62,9 @@ public class LeagueController(ILeagueRepository leagueRepository) : Controller
     [ProducesResponseType(400)]
     public async Task<IActionResult> GetAllLeagueGames(int leagueId, [FromQuery] GameQueryObject gameQuery)
     {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
+        if (!ModelState.IsValid) return BadRequest(ModelState);
 
-        if (!await leagueRepository.LeagueExistsAsync(leagueId))
-        {
-            return NotFound();
-        }
+        if (!await leagueRepository.LeagueExistsAsync(leagueId)) return NotFound();
 
         var games = await leagueRepository.GetLeagueGamesAsync(leagueId, gameQuery);
         var gameDtos = games.Select(g => g.ToGameDto()).ToList();
@@ -127,10 +107,7 @@ public class LeagueController(ILeagueRepository leagueRepository) : Controller
     [ProducesResponseType(400)]
     public async Task<IActionResult> AddPlayerToLeague([FromQuery] int leagueId, [FromQuery] int playerId)
     {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
+        if (!ModelState.IsValid) return BadRequest(ModelState);
 
         if (await leagueRepository.IsPlayerInLeagueAsync(leagueId, playerId))
         {
@@ -141,7 +118,7 @@ public class LeagueController(ILeagueRepository leagueRepository) : Controller
         await leagueRepository.AddPlayerToLeagueAsync(leagueId, playerId);
         return Ok("Succesfully added");
     }
-    
+
     [HttpDelete("removePlayer")]
     public async Task<IActionResult> RemovePlayerFromLeague([FromQuery] int leagueId, [FromQuery] int playerId)
     {
@@ -150,14 +127,11 @@ public class LeagueController(ILeagueRepository leagueRepository) : Controller
 
         var playerLeague = await leagueRepository.RemovePlayerAsync(leagueId, playerId);
 
-        if (playerLeague == null)
-        {
-            return NotFound("This player isnt part of this league");
-        }
+        if (playerLeague == null) return NotFound("This player isnt part of this league");
 
         return Ok("Player removed");
     }
-    
+
     [HttpDelete]
     public async Task<IActionResult> DeleteLeague([FromQuery] int leagueId)
     {
@@ -166,10 +140,7 @@ public class LeagueController(ILeagueRepository leagueRepository) : Controller
 
         var league = await leagueRepository.DeleteAsync(leagueId);
 
-        if (league == null)
-        {
-            return NotFound("League not found");
-        }
+        if (league == null) return NotFound("League not found");
 
         return Ok("League removed");
     }

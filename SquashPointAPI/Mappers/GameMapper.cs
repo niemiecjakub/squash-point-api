@@ -1,6 +1,4 @@
-﻿using SquashPointAPI.Dto;
-using SquashPointAPI.Dto.Game;
-using SquashPointAPI.Dto.Player;
+﻿using SquashPointAPI.Dto.Game;
 using SquashPointAPI.Models;
 
 namespace SquashPointAPI.Mappers;
@@ -9,7 +7,7 @@ public static class GameMapper
 {
     public static GameDto ToGameDto(this Game gameModel)
     {
-        return new GameDto()
+        return new GameDto
         {
             Id = gameModel.Id,
             Date = gameModel.Date,
@@ -17,10 +15,10 @@ public static class GameMapper
             Winner = gameModel.Winner?.ToPlayerDto(),
             CreatedAt = gameModel.CreatedAt,
             League = gameModel.League?.ToLeagueDto(),
-            Players = gameModel.PlayerGames.Select(pg => pg.Player.ToPlayerDto()).ToList(),
+            Players = gameModel.PlayerGames.Select(pg => pg.Player.ToPlayerDto()).ToList()
         };
     }
-    
+
     public static GameDetailsDto ToGameDetailsDto(this Game gameModel)
     {
         var players = gameModel.PlayerGames.Select(pg => pg.Player).ToList();
@@ -36,7 +34,7 @@ public static class GameMapper
             Sets = gameModel.Sets.Select(s => s.ToSetDto()).OrderByDescending(s => s.CreatedAt).ToList(),
             Player1Sets = gameModel.Sets.Count(s => s.Winner == players[0]),
             Player2Sets = gameModel.Sets.Count(s => s.Winner == players[1]),
-            CreatedAt = gameModel.CreatedAt,
+            CreatedAt = gameModel.CreatedAt
         };
     }
 }

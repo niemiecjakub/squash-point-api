@@ -1,6 +1,4 @@
-﻿using SquashPointAPI.Dto.Game;
-
-namespace SquashPointAPI.Dto.Player;
+﻿namespace SquashPointAPI.Dto.Player;
 
 public class PlayerDto
 {

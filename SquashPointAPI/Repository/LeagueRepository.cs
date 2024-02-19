@@ -1,13 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SquashPointAPI.Data;
-using SquashPointAPI.Dto.Player;
 using SquashPointAPI.Helpers;
 using SquashPointAPI.Interfaces;
 using SquashPointAPI.Models;
 
 namespace SquashPointAPI.Repository;
 
-internal class LeagueRepository(DataContext context) : ILeagueRepository
+internal class LeagueRepository(ApplicationDBContext context) : ILeagueRepository
 
 {
     public async Task<ICollection<League>> GetLeaguesAsync()
@@ -45,10 +44,8 @@ internal class LeagueRepository(DataContext context) : ILeagueRepository
             .AsQueryable();
 
         if (!string.IsNullOrWhiteSpace(gameQuery.GameStatus))
-        {
             games = games.Where(g => g.Status.Equals(gameQuery.GameStatus));
-        }
-        
+
         var skipNumber = (gameQuery.PageNumber - 1) * gameQuery.PageSize;
         return await games.OrderByDescending(g => g.Date).Skip(skipNumber).Take(gameQuery.PageSize).ToListAsync();
     }
@@ -69,7 +66,7 @@ internal class LeagueRepository(DataContext context) : ILeagueRepository
     {
         var league = await context.Leagues.FirstAsync(l => l.Id == leagueId);
         var player = await context.Players.FirstAsync(p => p.Id == playerId);
-        var playerLeague = new PlayerLeague()
+        var playerLeague = new PlayerLeague
         {
             Player = player,
             League = league,
@@ -91,24 +88,18 @@ internal class LeagueRepository(DataContext context) : ILeagueRepository
             .Where(pl => pl.LeagueId == leagueId)
             .FirstOrDefaultAsync(pl => pl.PlayerId == playerId);
 
-        if (playerLeague == null)
-        {
-            return null;
-        }
+        if (playerLeague == null) return null;
 
         context.PlayerLeagues.Remove(playerLeague);
         await context.SaveChangesAsync();
         return playerLeague;
     }
-    
+
     public async Task<League?> DeleteAsync(int leagueId)
     {
         var league = await context.Leagues.FirstOrDefaultAsync(l => l.Id == leagueId);
 
-        if (league == null)
-        {
-            return null;
-        }
+        if (league == null) return null;
 
         context.Leagues.Remove(league);
         await context.SaveChangesAsync();

@@ -10,64 +10,48 @@ namespace SquashPointAPI.Controllers;
 [ApiController]
 public class PlayerController(IPlayerRepository playerRepository) : Controller
 {
-    
     [HttpGet("player-list")]
     [ProducesResponseType(200, Type = typeof(IEnumerable<Player>))]
     public async Task<IActionResult> GetAllPlayers()
     {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-        
+        if (!ModelState.IsValid) return BadRequest(ModelState);
+
         var players = await playerRepository.GetPlayersAsync();
         var playerDtos = players.Select(s => s.ToPlayerDto()).ToList();
-        
+
         return Ok(playerDtos);
     }
-    
+
     [HttpGet("{playerId}")]
     [ProducesResponseType(200, Type = typeof(Player))]
     [ProducesResponseType(400)]
     public async Task<IActionResult> GetPlayerById(int playerId)
     {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-        
-        if (!await playerRepository.PlayerExistsAsync(playerId))
-        {
-            return NotFound();
-        }
+        if (!ModelState.IsValid) return BadRequest(ModelState);
+
+        if (!await playerRepository.PlayerExistsAsync(playerId)) return NotFound();
         var player = await playerRepository.GetPlayerAsync(playerId);
         var playerDto = player.ToPlayerDetailsDto();
 
         return Ok(playerDto);
     }
-    
+
     [HttpGet("{playerId}/player-games")]
     [ProducesResponseType(200, Type = typeof(IEnumerable<Game>))]
     [ProducesResponseType(400)]
     public async Task<IActionResult> GetAllPlayerGames(int playerId)
     {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-        
-        if (!await playerRepository.PlayerExistsAsync(playerId))
-        {
-            return NotFound();
-        }
-        
+        if (!ModelState.IsValid) return BadRequest(ModelState);
+
+        if (!await playerRepository.PlayerExistsAsync(playerId)) return NotFound();
+
         var games = await playerRepository.GetAllPlayerGamesAsync(playerId);
         var gameDtos = games.Select(g => g.ToGameDto()).ToList();
-        
+
         return Ok(gameDtos);
     }
-    
-        
+
+
     [HttpPost]
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]
@@ -78,12 +62,10 @@ public class PlayerController(IPlayerRepository playerRepository) : Controller
 
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
-        
+
         if (await playerRepository.EmailAlreadyTakenAsync(playerCreate.Email))
-        {
             return BadRequest("Email with this account already exists");
-        }
-        
+
         var player = playerCreate.ToPlayerFromCreateDto();
         await playerRepository.CreatePlayerAsync(player);
         var playerDto = player.ToPlayerDto();

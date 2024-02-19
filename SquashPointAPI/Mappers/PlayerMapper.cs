@@ -1,6 +1,4 @@
-﻿using SquashPointAPI.Dto;
-using SquashPointAPI.Dto.League;
-using SquashPointAPI.Dto.Player;
+﻿using SquashPointAPI.Dto.Player;
 using SquashPointAPI.Models;
 
 namespace SquashPointAPI.Mappers;
@@ -12,7 +10,7 @@ public static class PlayerMapper
         return new PlayerDto
         {
             Id = playerModel.Id,
-            FullName = playerModel.FirstName + " " + playerModel.LastName,
+            FullName = playerModel.FirstName + " " + playerModel.LastName
         };
     }
 
@@ -23,7 +21,7 @@ public static class PlayerMapper
             FirstName = playerDto.FirstName,
             LastName = playerDto.LastName,
             Email = playerDto.Email,
-            Sex = playerDto.Sex,
+            Sex = playerDto.Sex
         };
     }
 
@@ -40,15 +38,17 @@ public static class PlayerMapper
         };
     }
 
-    
+
     public static LeaguePlayerDto ToLeaguePlayerDto(this Player playerModel)
     {
-        return new LeaguePlayerDto()
+        return new LeaguePlayerDto
         {
             Id = playerModel.Id,
             FullName = playerModel.FirstName + " " + playerModel.LastName,
-            GamesPlayed = playerModel.PlayerGames.ToList().Count,
             Score = playerModel.PlayerLeagues.First().Score,
+            GamesPlayed = playerModel.PlayerGames.Count(pg => pg.Game.Status == "Finished"),
+            GamesWon = playerModel.PlayerGames.Count(pg => pg.Game.Winner == playerModel),
+            GamesLost = playerModel.PlayerGames.Count(pg => pg.Game.Winner != playerModel)
         };
     }
 }

@@ -5,7 +5,7 @@ using SquashPointAPI.Models;
 
 namespace SquashPointAPI.Repository;
 
-public class PlayerRepository(DataContext context) : IPlayerRepository
+public class PlayerRepository(ApplicationDBContext context) : IPlayerRepository
 {
     public async Task<ICollection<Player>> GetPlayersAsync()
     {

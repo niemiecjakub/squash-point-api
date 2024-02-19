@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-
-namespace SquashPointAPI.Models;
+﻿namespace SquashPointAPI.Models;
 
 public class Game
 {
@@ -9,7 +7,7 @@ public class Game
     public League League { get; set; }
     public string? Status { get; set; }
     public DateTime Date { get; set; }
-    public ICollection<PlayerGame> PlayerGames { get; set; } 
-    public ICollection<Set> Sets {get; set; } 
+    public ICollection<PlayerGame> PlayerGames { get; set; }
+    public ICollection<Set> Sets { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }

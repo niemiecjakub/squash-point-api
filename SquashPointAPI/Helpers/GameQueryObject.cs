@@ -1,6 +1,4 @@
-﻿using System.Runtime.InteropServices.JavaScript;
-
-namespace SquashPointAPI.Helpers;
+﻿namespace SquashPointAPI.Helpers;
 
 public class GameQueryObject
 {

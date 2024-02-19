@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SquashPointAPI.Data;
-using SquashPointAPI.Dto;
 using SquashPointAPI.Dto.Game;
 using SquashPointAPI.Helpers;
 using SquashPointAPI.Interfaces;
@@ -8,7 +7,7 @@ using SquashPointAPI.Models;
 
 namespace SquashPointAPI.Repository;
 
-public class GameRepository(DataContext context) : IGameRepository
+public class GameRepository(ApplicationDBContext context) : IGameRepository
 {
     public async Task<ICollection<Game>> GetGamesAsync(GameQueryObject gameQuery)
     {
@@ -20,24 +19,13 @@ public class GameRepository(DataContext context) : IGameRepository
             .AsQueryable();
 
         if (!string.IsNullOrWhiteSpace(gameQuery.GameStatus))
-        {
             games = games.Where(g => g.Status.Equals(gameQuery.GameStatus));
-        }
 
-        if (gameQuery.WinnerId != null)
-        {
-            games = games.Where(g => g.Winner.Id.Equals(gameQuery.WinnerId));
-        }
+        if (gameQuery.WinnerId != null) games = games.Where(g => g.Winner.Id.Equals(gameQuery.WinnerId));
 
-        if (gameQuery.OrderByScheduledDate)
-        {
-            games = games.OrderByDescending(g => g.Date);
-        }
+        if (gameQuery.OrderByScheduledDate) games = games.OrderByDescending(g => g.Date);
 
-        if (gameQuery.OrderByCreateDate)
-        {
-            games = games.OrderByDescending(g => g.CreatedAt);
-        }
+        if (gameQuery.OrderByCreateDate) games = games.OrderByDescending(g => g.CreatedAt);
 
         var skipNumber = (gameQuery.PageNumber - 1) * gameQuery.PageSize;
         return await games.Skip(skipNumber).Take(gameQuery.PageSize).ToListAsync();
@@ -72,12 +60,12 @@ public class GameRepository(DataContext context) : IGameRepository
             Status = "Unfinished",
             Date = date
         };
-        var playerGame1 = new PlayerGame()
+        var playerGame1 = new PlayerGame
         {
             Player = player1,
             Game = newGame
         };
-        var playerGame2 = new PlayerGame()
+        var playerGame2 = new PlayerGame
         {
             Player = player2,
             Game = newGame
@@ -113,10 +101,7 @@ public class GameRepository(DataContext context) : IGameRepository
     {
         var game = await context.Games.FirstOrDefaultAsync(g => g.Id == gameId);
 
-        if (game == null)
-        {
-            return null;
-        }
+        if (game == null) return null;
 
         context.Games.Remove(game);
         await context.SaveChangesAsync();

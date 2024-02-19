@@ -7,7 +7,7 @@ using SquashPointAPI.Models;
 
 namespace SquashPointAPI.Repository;
 
-public class SetRepository(DataContext context) : ISetRepository
+public class SetRepository(ApplicationDBContext context) : ISetRepository
 {
     public async Task<Set> CreateSetAsync(CreateSetDto setCreate)
     {
@@ -25,7 +25,7 @@ public class SetRepository(DataContext context) : ISetRepository
     {
         var set = await context.Set.FirstAsync(s => s.Id == setId);
         set.Winner = await context.Players.FirstAsync(p => p.Id == updateDto.WinnerId);
-        
+
         await context.SaveChangesAsync();
 
         return set;

@@ -1,14 +1,15 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using SquashPointAPI.Models;
 
 namespace SquashPointAPI.Data;
 
-public class DataContext : DbContext
+public class ApplicationDBContext : IdentityDbContext<AppUser>
 {
-    public DataContext(DbContextOptions<DataContext> options) : base(options)
+    public ApplicationDBContext(DbContextOptions dbContextOptions) : base(dbContextOptions)
     {
     }
-    
+
     public DbSet<Player> Players { get; set; }
     public DbSet<League> Leagues { get; set; }
     public DbSet<Game> Games { get; set; }
