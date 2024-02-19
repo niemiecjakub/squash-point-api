@@ -142,14 +142,13 @@ public class LeagueController(ILeagueRepository leagueRepository) : Controller
         return Ok("Succesfully added");
     }
     
-    [HttpDelete]
-    [Route("removePlayer")]
-    public async Task<IActionResult> Delete([FromQuery] int leagueId, [FromQuery] int playerId)
+    [HttpDelete("removePlayer")]
+    public async Task<IActionResult> RemovePlayerFromLeague([FromQuery] int leagueId, [FromQuery] int playerId)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        var playerLeague = await leagueRepository.DeleteAsync(leagueId, playerId);
+        var playerLeague = await leagueRepository.RemovePlayerAsync(leagueId, playerId);
 
         if (playerLeague == null)
         {
@@ -157,5 +156,21 @@ public class LeagueController(ILeagueRepository leagueRepository) : Controller
         }
 
         return Ok("Player removed");
+    }
+    
+    [HttpDelete]
+    public async Task<IActionResult> DeleteLeague([FromQuery] int leagueId)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
+        var league = await leagueRepository.DeleteAsync(leagueId);
+
+        if (league == null)
+        {
+            return NotFound("League not found");
+        }
+
+        return Ok("League removed");
     }
 }

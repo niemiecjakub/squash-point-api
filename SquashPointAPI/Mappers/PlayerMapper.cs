@@ -12,12 +12,7 @@ public static class PlayerMapper
         return new PlayerDto
         {
             Id = playerModel.Id,
-            FirstName = playerModel.FirstName,
-            LastName = playerModel.LastName,
             FullName = playerModel.FirstName + " " + playerModel.LastName,
-            Email = playerModel.Email,
-            Sex = playerModel.Sex,
-            CreatedAt = playerModel.CreatedAt,
         };
     }
 
@@ -37,8 +32,6 @@ public static class PlayerMapper
         return new PlayerDetailsDto
         {
             Id = playerModel.Id,
-            FirstName = playerModel.FirstName,
-            LastName = playerModel.LastName,
             FullName = playerModel.FirstName + " " + playerModel.LastName,
             Sex = playerModel.Sex,
             Email = playerModel.Email,
@@ -50,15 +43,10 @@ public static class PlayerMapper
     
     public static LeaguePlayerDto ToLeaguePlayerDto(this Player playerModel)
     {
-
         return new LeaguePlayerDto()
         {
             Id = playerModel.Id,
-            FirstName = playerModel.FirstName,
-            LastName = playerModel.LastName,
             FullName = playerModel.FirstName + " " + playerModel.LastName,
-            Sex = playerModel.Sex,
-            Email = playerModel.Email,
             GamesPlayed = playerModel.PlayerGames.ToList().Count,
             Score = playerModel.PlayerLeagues.First().Score,
         };

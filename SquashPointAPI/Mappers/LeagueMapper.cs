@@ -12,7 +12,6 @@ public static class LeagueMapper
         {
             Id = leagueModel.Id,
             Name = leagueModel.Name,
-            CreatedAt = leagueModel.CreatedAt,
         };
     }
 

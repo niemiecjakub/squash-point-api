@@ -9,26 +9,16 @@ public static class GameMapper
 {
     public static GameDto ToGameDto(this Game gameModel)
     {
-        var dto = new GameDto();
-        dto.Id = gameModel.Id;
-        dto.Date = gameModel.Date;
-        dto.Status = gameModel.Status;
-        dto.Winner = gameModel.Winner?.ToPlayerDto();
-        dto.CreatedAt = gameModel.CreatedAt;
-        dto.LeagueId = gameModel.League?.Id;
-        dto.Players = gameModel.PlayerGames.Select(pg => pg.Player.ToPlayerDto()).ToList();
-
-        return dto;
-        // return new GameDto
-        // {
-        //     Id = gameModel.Id,
-        //     Date = gameModel.Date,
-        //     Status = gameModel.Status,
-        //     Winner = gameModel.Winner?.ToPlayerDto(),
-        //     CreatedAt = gameModel.CreatedAt,
-        //     LeagueId = gameModel.League.Id,
-        //     Players = gameModel.PlayerGames.Select(pg => pg.Player.ToPlayerDto()).ToList()
-        // };
+        return new GameDto()
+        {
+            Id = gameModel.Id,
+            Date = gameModel.Date,
+            Status = gameModel.Status,
+            Winner = gameModel.Winner?.ToPlayerDto(),
+            CreatedAt = gameModel.CreatedAt,
+            League = gameModel.League?.ToLeagueDto(),
+            Players = gameModel.PlayerGames.Select(pg => pg.Player.ToPlayerDto()).ToList(),
+        };
     }
     
     public static GameDetailsDto ToGameDetailsDto(this Game gameModel)
