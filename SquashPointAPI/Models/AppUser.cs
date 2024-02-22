@@ -4,8 +4,9 @@ namespace SquashPointAPI.Models;
 
 public class AppUser : IdentityUser
 {
-    public string FirstName { get; set; }
-    public string LastName { get; set; }
-    public string FullName { get; set; }
-    public string Sex { get; set; }
+    // public string FirstName { get; set; }
+    // public string LastName { get; set; }
+    // public string FullName { get; set; }
+    // public string Sex { get; set; }
+    // public string Username { get; set; }
 }

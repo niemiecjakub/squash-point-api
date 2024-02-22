@@ -1,59 +1,59 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using SquashPointAPI.Dto.Account;
+using SquashPointAPI.Interfaces;
 using SquashPointAPI.Models;
 
 namespace SquashPointAPI.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class AccountController : ControllerBase
+public class AccountController(UserManager<AppUser> userManager, SignInManager<AppUser> signinManager, ITokenService tokenService) : ControllerBase
 {
-    private readonly UserManager<AppUser> _userManager;
-
-    public AccountController(UserManager<AppUser> userManager)
-    {
-        _userManager = userManager;
-    }
-
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegisterDto registerDto)
     {
-        try
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
+        var appUser = new AppUser
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
+            UserName = registerDto.Email,
+            Email = registerDto.Email
+        };
 
-            
-            var appUser = new AppUser
-            {
-                FirstName = registerDto.FirstName,
-                LastName = registerDto.LastName,
-                FullName = registerDto.FirstName + " " + registerDto.LastName,
-                Email = registerDto.Email,
-                Sex = registerDto.Sex
-            };
+        var createdUser = await userManager.CreateAsync(appUser, registerDto.Password);
 
-            var createdUser = await _userManager.CreateAsync(appUser, registerDto.Password);
-
-            if (createdUser.Succeeded)
-            {
-                var roleResult = await _userManager.AddToRoleAsync(appUser, "User");
-                if (roleResult.Succeeded)
-                {
-                    return Ok("User created");
-                }
-
-                return StatusCode(500, roleResult.Errors);
-            }
-
-            return StatusCode(500, createdUser.Errors);
-        }
-        catch (Exception e)
+        if (createdUser.Succeeded)
         {
-            return StatusCode(500, e);
+            await userManager.AddToRoleAsync(appUser, "User");
+            return Ok("User created");
         }
+
+        return StatusCode(500, "Error");
+    }
+    
+    [HttpPost("login")]
+    public async Task<IActionResult> Login(LoginDto loginDto)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
+        var user = await userManager.Users.FirstOrDefaultAsync(x => x.Email == loginDto.Email.ToLower());
+
+        if (user == null) return Unauthorized("Invalid Email!");
+
+        var result = await signinManager.CheckPasswordSignInAsync(user, loginDto.Password, false);
+
+        if (!result.Succeeded) return Unauthorized("Account not found and/or password incorrect");
+
+        return Ok(
+            new NewUserDto
+            {
+                Email = user.Email,
+                Token = tokenService.CreateToken(user)
+            }
+        );
     }
 }

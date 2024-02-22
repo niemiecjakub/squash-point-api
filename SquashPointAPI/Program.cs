@@ -7,6 +7,7 @@ using SquashPointAPI.Data;
 using SquashPointAPI.Interfaces;
 using SquashPointAPI.Models;
 using SquashPointAPI.Repository;
+using SquashPointAPI.Service;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,6 +26,10 @@ builder.Services.AddIdentity<AppUser, IdentityRole>(options =>
         options.Password.RequireLowercase = true;
         options.Password.RequireUppercase = true;
         options.Password.RequiredLength = 8;
+        options.User = new UserOptions()
+        {
+            RequireUniqueEmail = true
+        };
     })
     .AddEntityFrameworkStores<ApplicationDBContext>();
 
@@ -56,6 +61,7 @@ builder.Services.AddScoped<ILeagueRepository, LeagueRepository>();
 builder.Services.AddScoped<IGameRepository, GameRepository>();
 builder.Services.AddScoped<ISetRepository, SetRepository>();
 builder.Services.AddScoped<IPointRepository, PointRepository>();
+builder.Services.AddScoped<ITokenService, TokenService>();
 
 var app = builder.Build();
 
