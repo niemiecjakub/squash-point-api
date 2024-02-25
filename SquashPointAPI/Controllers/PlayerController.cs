@@ -25,7 +25,7 @@ public class PlayerController(IPlayerRepository playerRepository) : Controller
     [HttpGet("{playerId}")]
     [ProducesResponseType(200, Type = typeof(Player))]
     [ProducesResponseType(400)]
-    public async Task<IActionResult> GetPlayerById(int playerId)
+    public async Task<IActionResult> GetPlayerById(string playerId)
     {
         if (!ModelState.IsValid) return BadRequest(ModelState);
 
@@ -39,7 +39,7 @@ public class PlayerController(IPlayerRepository playerRepository) : Controller
     [HttpGet("{playerId}/player-games")]
     [ProducesResponseType(200, Type = typeof(IEnumerable<Game>))]
     [ProducesResponseType(400)]
-    public async Task<IActionResult> GetAllPlayerGames(int playerId)
+    public async Task<IActionResult> GetAllPlayerGames(string playerId)
     {
         if (!ModelState.IsValid) return BadRequest(ModelState);
 

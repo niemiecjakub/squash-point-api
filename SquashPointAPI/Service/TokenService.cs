@@ -12,7 +12,7 @@ public class TokenService(IConfiguration config) : ITokenService
     private readonly SymmetricSecurityKey key =
         new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["JWT:SigningKey"]));
     
-    public string CreateToken(AppUser user)
+    public string CreateToken(Player user)
     {
         var claims = new List<Claim>
         {

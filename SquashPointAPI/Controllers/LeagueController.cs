@@ -105,7 +105,7 @@ public class LeagueController(ILeagueRepository leagueRepository) : Controller
     [ProducesResponseType(200, Type = typeof(PlayerLeague))]
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]
-    public async Task<IActionResult> AddPlayerToLeague([FromQuery] int leagueId, [FromQuery] int playerId)
+    public async Task<IActionResult> AddPlayerToLeague([FromQuery] int leagueId, [FromQuery] string playerId)
     {
         if (!ModelState.IsValid) return BadRequest(ModelState);
 
@@ -120,7 +120,7 @@ public class LeagueController(ILeagueRepository leagueRepository) : Controller
     }
 
     [HttpDelete("removePlayer")]
-    public async Task<IActionResult> RemovePlayerFromLeague([FromQuery] int leagueId, [FromQuery] int playerId)
+    public async Task<IActionResult> RemovePlayerFromLeague([FromQuery] int leagueId, [FromQuery] string playerId)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);

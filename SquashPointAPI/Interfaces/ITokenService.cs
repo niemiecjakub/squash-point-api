@@ -4,5 +4,5 @@ namespace SquashPointAPI.Interfaces;
 
 public interface ITokenService
 {
-    string CreateToken(AppUser user);
+    string CreateToken(Player user);
 }

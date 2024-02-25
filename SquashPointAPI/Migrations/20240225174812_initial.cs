@@ -3,10 +3,12 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
+
 namespace SquashPointAPI.Migrations
 {
     /// <inheritdoc />
-    public partial class Initial : Migration
+    public partial class initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -30,6 +32,10 @@ namespace SquashPointAPI.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    FirstName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    LastName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Sex = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
@@ -62,23 +68,6 @@ namespace SquashPointAPI.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Leagues", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Players",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    FirstName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    LastName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Sex = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Players", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -193,7 +182,7 @@ namespace SquashPointAPI.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    WinnerId = table.Column<int>(type: "int", nullable: true),
+                    WinnerId = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     LeagueId = table.Column<int>(type: "int", nullable: false),
                     Status = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Date = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -203,67 +192,65 @@ namespace SquashPointAPI.Migrations
                 {
                     table.PrimaryKey("PK_Games", x => x.Id);
                     table.ForeignKey(
+                        name: "FK_Games_AspNetUsers_WinnerId",
+                        column: x => x.WinnerId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                    table.ForeignKey(
                         name: "FK_Games_Leagues_LeagueId",
                         column: x => x.LeagueId,
                         principalTable: "Leagues",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Games_Players_WinnerId",
-                        column: x => x.WinnerId,
-                        principalTable: "Players",
-                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
-                name: "PlayerLeagues",
+                name: "PlayerLeague",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    PlayerId = table.Column<int>(type: "int", nullable: false),
+                    PlayerId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     LeagueId = table.Column<int>(type: "int", nullable: false),
+                    Id = table.Column<int>(type: "int", nullable: false),
                     Score = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_PlayerLeagues", x => x.Id);
+                    table.PrimaryKey("PK_PlayerLeague", x => new { x.PlayerId, x.LeagueId });
                     table.ForeignKey(
-                        name: "FK_PlayerLeagues_Leagues_LeagueId",
-                        column: x => x.LeagueId,
-                        principalTable: "Leagues",
+                        name: "FK_PlayerLeague_AspNetUsers_PlayerId",
+                        column: x => x.PlayerId,
+                        principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_PlayerLeagues_Players_PlayerId",
-                        column: x => x.PlayerId,
-                        principalTable: "Players",
+                        name: "FK_PlayerLeague_Leagues_LeagueId",
+                        column: x => x.LeagueId,
+                        principalTable: "Leagues",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "PlayerGames",
+                name: "PlayerGame",
                 columns: table => new
                 {
+                    PlayerId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    GameId = table.Column<int>(type: "int", nullable: false),
                     Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    PlayerId = table.Column<int>(type: "int", nullable: false),
-                    GameId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_PlayerGames", x => x.Id);
+                    table.PrimaryKey("PK_PlayerGame", x => new { x.PlayerId, x.GameId });
                     table.ForeignKey(
-                        name: "FK_PlayerGames_Games_GameId",
-                        column: x => x.GameId,
-                        principalTable: "Games",
+                        name: "FK_PlayerGame_AspNetUsers_PlayerId",
+                        column: x => x.PlayerId,
+                        principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_PlayerGames_Players_PlayerId",
-                        column: x => x.PlayerId,
-                        principalTable: "Players",
+                        name: "FK_PlayerGame_Games_GameId",
+                        column: x => x.GameId,
+                        principalTable: "Games",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -274,7 +261,7 @@ namespace SquashPointAPI.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    WinnerId = table.Column<int>(type: "int", nullable: true),
+                    WinnerId = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     GameId = table.Column<int>(type: "int", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
@@ -282,16 +269,16 @@ namespace SquashPointAPI.Migrations
                 {
                     table.PrimaryKey("PK_Set", x => x.Id);
                     table.ForeignKey(
+                        name: "FK_Set_AspNetUsers_WinnerId",
+                        column: x => x.WinnerId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                    table.ForeignKey(
                         name: "FK_Set_Games_GameId",
                         column: x => x.GameId,
                         principalTable: "Games",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Set_Players_WinnerId",
-                        column: x => x.WinnerId,
-                        principalTable: "Players",
-                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -300,7 +287,7 @@ namespace SquashPointAPI.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    WinnerId = table.Column<int>(type: "int", nullable: false),
+                    WinnerId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     PointType = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     SetId = table.Column<int>(type: "int", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
@@ -309,9 +296,9 @@ namespace SquashPointAPI.Migrations
                 {
                     table.PrimaryKey("PK_Point", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Point_Players_WinnerId",
+                        name: "FK_Point_AspNetUsers_WinnerId",
                         column: x => x.WinnerId,
-                        principalTable: "Players",
+                        principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
@@ -320,6 +307,15 @@ namespace SquashPointAPI.Migrations
                         principalTable: "Set",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.InsertData(
+                table: "AspNetRoles",
+                columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
+                values: new object[,]
+                {
+                    { "0fac3f27-da0e-4339-8bde-00199ccd48dd", null, "User", "USER" },
+                    { "7d86ce91-fab2-40fa-a887-7bd93ef21624", null, "Admin", "ADMIN" }
                 });
 
             migrationBuilder.CreateIndex(
@@ -372,24 +368,14 @@ namespace SquashPointAPI.Migrations
                 column: "WinnerId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_PlayerGames_GameId",
-                table: "PlayerGames",
+                name: "IX_PlayerGame_GameId",
+                table: "PlayerGame",
                 column: "GameId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_PlayerGames_PlayerId",
-                table: "PlayerGames",
-                column: "PlayerId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_PlayerLeagues_LeagueId",
-                table: "PlayerLeagues",
+                name: "IX_PlayerLeague_LeagueId",
+                table: "PlayerLeague",
                 column: "LeagueId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_PlayerLeagues_PlayerId",
-                table: "PlayerLeagues",
-                column: "PlayerId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Point_SetId",
@@ -431,10 +417,10 @@ namespace SquashPointAPI.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
-                name: "PlayerGames");
+                name: "PlayerGame");
 
             migrationBuilder.DropTable(
-                name: "PlayerLeagues");
+                name: "PlayerLeague");
 
             migrationBuilder.DropTable(
                 name: "Point");
@@ -443,19 +429,16 @@ namespace SquashPointAPI.Migrations
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
-                name: "AspNetUsers");
-
-            migrationBuilder.DropTable(
                 name: "Set");
 
             migrationBuilder.DropTable(
                 name: "Games");
 
             migrationBuilder.DropTable(
-                name: "Leagues");
+                name: "AspNetUsers");
 
             migrationBuilder.DropTable(
-                name: "Players");
+                name: "Leagues");
         }
     }
 }

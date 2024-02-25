@@ -12,7 +12,7 @@ public class PlayerRepository(ApplicationDBContext context) : IPlayerRepository
         return await context.Players.OrderBy(p => p.Id).ToListAsync();
     }
 
-    public async Task<Player> GetPlayerAsync(int playerId)
+    public async Task<Player> GetPlayerAsync(string playerId)
     {
         return await context.Players
             .Include(p => p.PlayerLeagues)
@@ -24,16 +24,16 @@ public class PlayerRepository(ApplicationDBContext context) : IPlayerRepository
             .Include(p => p.PlayerGames)
             .ThenInclude(pg => pg.Game)
             .ThenInclude(pg => pg.League)
-            .FirstAsync(p => p.Id == playerId);
+            .FirstAsync(p => p.Id.Equals(playerId));
     }
 
-    public async Task<ICollection<Game>> GetAllPlayerGamesAsync(int playerId)
+    public async Task<ICollection<Game>> GetAllPlayerGamesAsync(string playerId)
     {
         return await context.Games
             .Include(g => g.League)
             .Include(g => g.PlayerGames)
             .ThenInclude(pg => pg.Player)
-            .Where(g => g.PlayerGames.Any(pg => pg.PlayerId == playerId))
+            .Where(g => g.PlayerGames.Any(pg => pg.PlayerId.Equals(playerId) ))
             .ToListAsync();
     }
 
@@ -44,9 +44,9 @@ public class PlayerRepository(ApplicationDBContext context) : IPlayerRepository
         return player;
     }
 
-    public async Task<bool> PlayerExistsAsync(int playerId)
+    public async Task<bool> PlayerExistsAsync(string playerId)
     {
-        return await context.Players.AnyAsync(p => p.Id == playerId);
+        return await context.Players.AnyAsync(p => p.Id.Equals(playerId));
     }
 
     public async Task<bool> EmailAlreadyTakenAsync(string email)

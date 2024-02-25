@@ -2,5 +2,5 @@
 
 public class UpdateSetRequestDto
 {
-    public int WinnerId { get; set; }
+    public string WinnerId { get; set; }
 }

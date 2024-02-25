@@ -62,10 +62,10 @@ internal class LeagueRepository(ApplicationDBContext context) : ILeagueRepositor
         return league;
     }
 
-    public async Task<PlayerLeague> AddPlayerToLeagueAsync(int leagueId, int playerId)
+    public async Task<PlayerLeague> AddPlayerToLeagueAsync(int leagueId, string playerId)
     {
         var league = await context.Leagues.FirstAsync(l => l.Id == leagueId);
-        var player = await context.Players.FirstAsync(p => p.Id == playerId);
+        var player = await context.Players.FirstAsync(p => p.Id.Equals(playerId));
         var playerLeague = new PlayerLeague
         {
             Player = player,
@@ -77,16 +77,16 @@ internal class LeagueRepository(ApplicationDBContext context) : ILeagueRepositor
         return playerLeague;
     }
 
-    public async Task<bool> IsPlayerInLeagueAsync(int leagueId, int playerId)
+    public async Task<bool> IsPlayerInLeagueAsync(int leagueId, string playerId)
     {
-        return await context.PlayerLeagues.AnyAsync(pl => pl.LeagueId == leagueId && pl.PlayerId == playerId);
+        return await context.PlayerLeagues.AnyAsync(pl => pl.LeagueId == leagueId && pl.PlayerId.Equals(playerId));
     }
 
-    public async Task<PlayerLeague?> RemovePlayerAsync(int leagueId, int playerId)
+    public async Task<PlayerLeague?> RemovePlayerAsync(int leagueId, string playerId)
     {
         var playerLeague = await context.PlayerLeagues
             .Where(pl => pl.LeagueId == leagueId)
-            .FirstOrDefaultAsync(pl => pl.PlayerId == playerId);
+            .FirstOrDefaultAsync(pl => pl.PlayerId .Equals(playerId));
 
         if (playerLeague == null) return null;
 

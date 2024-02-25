@@ -1,9 +1,11 @@
-﻿namespace SquashPointAPI.Models;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 
+namespace SquashPointAPI.Models;
+
+[Table(("PlayerLeague"))]
 public class PlayerLeague
 {
-    public int Id { get; set; }
-    public int PlayerId { get; set; }
+    public string PlayerId { get; set; }
     public int LeagueId { get; set; }
     public Player Player { get; set; }
     public League League { get; set; }

@@ -9,29 +9,54 @@ namespace SquashPointAPI.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class AccountController(UserManager<AppUser> userManager, SignInManager<AppUser> signinManager, ITokenService tokenService) : ControllerBase
+public class AccountController(UserManager<Player> userManager, SignInManager<Player> signinManager, ITokenService tokenService) : ControllerBase
 {
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegisterDto registerDto)
     {
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
-
-        var appUser = new AppUser
+        try
         {
-            UserName = registerDto.Email,
-            Email = registerDto.Email
-        };
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
-        var createdUser = await userManager.CreateAsync(appUser, registerDto.Password);
+            var appUser = new Player
+            {
+                UserName = registerDto.Email,
+                Email = registerDto.Email,
+                FirstName = registerDto.FirstName,
+                LastName = registerDto.LastName,
+                Sex = registerDto.Sex
+            };
 
-        if (createdUser.Succeeded)
-        {
-            await userManager.AddToRoleAsync(appUser, "User");
-            return Ok("User created");
+            var createdUser = await userManager.CreateAsync(appUser, registerDto.Password);
+
+            if (createdUser.Succeeded)
+            {
+                var roleResult = await userManager.AddToRoleAsync(appUser, "User");
+                if (roleResult.Succeeded)
+                {
+                    return Ok(
+                        new NewUserDto
+                        {
+                            Email = appUser.Email,
+                            Token = tokenService.CreateToken(appUser)
+                        }
+                    );
+                }
+                else
+                {
+                    return StatusCode(500, roleResult.Errors);
+                }
+            }
+            else
+            {
+                return StatusCode(500, createdUser.Errors);
+            }
         }
-
-        return StatusCode(500, "Error");
+        catch (Exception e)
+        {
+            return StatusCode(500, e);
+        }
     }
     
     [HttpPost("login")]

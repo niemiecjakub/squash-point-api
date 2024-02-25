@@ -11,7 +11,7 @@ public class PointRepository(ApplicationDBContext context) : IPointRepository
 {
     public async Task<Point> CreatePointAsync(CreatePointDto createPointDto)
     {
-        var winner = await context.Players.FirstAsync(p => p.Id == createPointDto.WinnerId);
+        var winner = await context.Players.FirstAsync(p => p.Id.Equals(createPointDto.WinnerId));
         var set = await context.Set.FirstAsync(s => s.Id == createPointDto.SetId);
         var point = createPointDto.ToPointFromCreateDto(winner, set);
 
@@ -20,7 +20,7 @@ public class PointRepository(ApplicationDBContext context) : IPointRepository
         return point;
     }
 
-    public bool UpdateWinner(int playerId)
+    public bool UpdateWinner(string playerId)
     {
         throw new NotImplementedException();
     }

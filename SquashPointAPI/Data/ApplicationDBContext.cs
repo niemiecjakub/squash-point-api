@@ -5,7 +5,7 @@ using SquashPointAPI.Models;
 
 namespace SquashPointAPI.Data;
 
-public class ApplicationDBContext : IdentityDbContext<AppUser>
+public class ApplicationDBContext : IdentityDbContext<Player>
 {
     public ApplicationDBContext(DbContextOptions dbContextOptions) : base(dbContextOptions)
     {
@@ -23,6 +23,39 @@ public class ApplicationDBContext : IdentityDbContext<AppUser>
     {
         base.OnModelCreating(builder);
 
+
+        builder.Entity<PlayerLeague>(x =>
+        {
+            x.HasKey(pl => new { pl.PlayerId, pl.LeagueId });
+        });
+
+        builder.Entity<PlayerLeague>()
+            .HasOne(pl => pl.Player)
+            .WithMany(p => p.PlayerLeagues)
+            .HasForeignKey(pl => pl.PlayerId);
+    
+        builder.Entity<PlayerLeague>()
+            .HasOne(pl => pl.League)
+            .WithMany(l => l.PlayerLeagues)
+            .HasForeignKey(pl => pl.LeagueId);
+        
+        
+        builder.Entity<PlayerGame>(x =>
+        {
+            x.HasKey(pg => new { pg.PlayerId, pg.GameId });
+        });
+        
+        builder.Entity<PlayerGame>()
+            .HasOne(pg => pg.Player)
+            .WithMany(p => p.PlayerGames)
+            .HasForeignKey(pg => pg.PlayerId);
+     
+        builder.Entity<PlayerGame>()
+            .HasOne(pg => pg.Game)
+            .WithMany(g => g.PlayerGames)
+            .HasForeignKey(pg => pg.GameId);
+        
+        
         List<IdentityRole> roles = new List<IdentityRole>
         {
             new IdentityRole

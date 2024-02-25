@@ -6,5 +6,5 @@ namespace SquashPointAPI.Interfaces;
 public interface IPointRepository
 {
     Task<Point> CreatePointAsync(CreatePointDto createPointDto);
-    bool UpdateWinner(int playerId);
+    bool UpdateWinner(string playerId);
 }
