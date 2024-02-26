@@ -1,7 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using SquashPointAPI.Dto.Game;
 using SquashPointAPI.Dto.League;
 using SquashPointAPI.Dto.Player;
+using SquashPointAPI.Extensions;
 using SquashPointAPI.Helpers;
 using SquashPointAPI.Interfaces;
 using SquashPointAPI.Mappers;
@@ -11,7 +14,7 @@ namespace SquashPointAPI.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class LeagueController(ILeagueRepository leagueRepository) : Controller
+public class LeagueController(ILeagueRepository leagueRepository, UserManager<Player> userManager) : Controller
 {
     [HttpGet("league-list")]
     [ProducesResponseType(200, Type = typeof(IEnumerable<LeagueDto>))]
@@ -102,20 +105,34 @@ public class LeagueController(ILeagueRepository leagueRepository) : Controller
     }
 
     [HttpPost("addPlayer")]
+    [Authorize]
     [ProducesResponseType(200, Type = typeof(PlayerLeague))]
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]
-    public async Task<IActionResult> AddPlayerToLeague([FromQuery] int leagueId, [FromQuery] string playerId)
+    public async Task<IActionResult> AddPlayerToLeague([FromQuery] int leagueId)
     {
+
+        var userEmail = User.GetUserEmail();
+        var player = userManager.FindByEmailAsync(userEmail).Result;
+        var league = leagueRepository.GetLeagueByIdAsync(leagueId);
+        
         if (!ModelState.IsValid) return BadRequest(ModelState);
 
-        if (await leagueRepository.IsPlayerInLeagueAsync(leagueId, playerId))
+        if (await leagueRepository.IsPlayerInLeagueAsync(leagueId, player.Id))
         {
             ModelState.AddModelError("", "Player is already in this league");
             return StatusCode(422, ModelState);
         }
 
-        await leagueRepository.AddPlayerToLeagueAsync(leagueId, playerId);
+        await leagueRepository.AddPlayerToLeagueAsync(leagueId, player.Id);
+
+        //TODO
+        // var playerLeagueModel = new PlayerLeague()
+        // {
+        //     LeagueId = leagueId,
+        //     PlayerId = player.Id
+        // };
+        
         return Ok("Succesfully added");
     }
 
