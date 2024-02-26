@@ -37,6 +37,14 @@ public class PlayerRepository(ApplicationDBContext context) : IPlayerRepository
             .ToListAsync();
     }
 
+    public async Task<ICollection<League>> GetPlayerLeagues(string playerId)
+    {
+        return await context.PlayerLeagues
+            .Where(pl => pl.PlayerId.Equals(playerId))
+            .Select(pl => pl.League)
+            .ToListAsync();
+    }
+
     public async Task<Player> CreatePlayerAsync(Player player)
     {
         await context.AddAsync(player);

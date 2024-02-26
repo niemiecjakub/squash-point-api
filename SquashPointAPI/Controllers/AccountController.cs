@@ -43,15 +43,9 @@ public class AccountController(UserManager<Player> userManager, SignInManager<Pl
                         }
                     );
                 }
-                else
-                {
                     return StatusCode(500, roleResult.Errors);
-                }
             }
-            else
-            {
                 return StatusCode(500, createdUser.Errors);
-            }
         }
         catch (Exception e)
         {
