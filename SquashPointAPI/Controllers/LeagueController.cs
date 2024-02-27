@@ -18,7 +18,7 @@ public class LeagueController(ILeagueRepository leagueRepository, UserManager<Pl
 {
     [HttpGet("league-list")]
     [ProducesResponseType(200, Type = typeof(IEnumerable<LeagueDto>))]
-    public async Task<IActionResult> GetAllLeagues()
+    public async Task<IActionResult> GetLeagues()
     {
         var leagues = await leagueRepository.GetLeaguesAsync();
         var leagueDtos = leagues.Select(l => l.ToLeagueDto()).ToList();
@@ -47,7 +47,7 @@ public class LeagueController(ILeagueRepository leagueRepository, UserManager<Pl
     [HttpGet("{leagueId}/player-list")]
     [ProducesResponseType(200, Type = typeof(IEnumerable<LeaguePlayerDto>))]
     [ProducesResponseType(400)]
-    public async Task<IActionResult> GetAllLeaguePlayers(int leagueId)
+    public async Task<IActionResult> GetLeaguePlayers(int leagueId)
     {
         if (!ModelState.IsValid) return BadRequest(ModelState);
 
@@ -103,13 +103,14 @@ public class LeagueController(ILeagueRepository leagueRepository, UserManager<Pl
 
         return Ok(leagueDto);
     }
-
+    
     [HttpPost("join")]
+    [HttpPost("addPlayer")]
     [Authorize]
     [ProducesResponseType(200, Type = typeof(PlayerLeague))]
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]
-    public async Task<IActionResult> AddPlayerToLeague([FromQuery] int leagueId)
+    public async Task<IActionResult> JoinLeague([FromQuery] int leagueId)
     {
         var userEmail = User.GetUserEmail();
         var player = userManager.FindByEmailAsync(userEmail).Result;
@@ -120,6 +121,7 @@ public class LeagueController(ILeagueRepository leagueRepository, UserManager<Pl
         {
             return BadRequest("League doesnt exist");
         }
+        
         if (await leagueRepository.IsPlayerInLeagueAsync(leagueId, player.Id))
         {
             ModelState.AddModelError("", "Player is already in this league");
@@ -139,7 +141,7 @@ public class LeagueController(ILeagueRepository leagueRepository, UserManager<Pl
 
     [HttpDelete("leave")]
     [Authorize]
-    public async Task<IActionResult> RemovePlayerFromLeague([FromQuery] int leagueId, [FromQuery] string playerId)
+    public async Task<IActionResult> LeaveLeague([FromQuery] int leagueId, [FromQuery] string playerId)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
