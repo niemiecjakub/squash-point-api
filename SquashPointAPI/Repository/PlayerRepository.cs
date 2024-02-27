@@ -24,7 +24,7 @@ public class PlayerRepository(ApplicationDBContext context) : IPlayerRepository
             .Include(p => p.PlayerGames)
             .ThenInclude(pg => pg.Game)
             .ThenInclude(pg => pg.League)
-            .FirstAsync(p => p.Id.Equals(playerId));
+            .FirstOrDefaultAsync(p => p.Id.Equals(playerId));
     }
 
     public async Task<ICollection<Game>> GetAllPlayerGamesAsync(string playerId)

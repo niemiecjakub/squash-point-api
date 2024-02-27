@@ -50,26 +50,4 @@ public class PlayerController(IPlayerRepository playerRepository) : Controller
 
         return Ok(gameDtos);
     }
-
-
-    [HttpPost]
-    [ProducesResponseType(204)]
-    [ProducesResponseType(400)]
-    public async Task<IActionResult> CreatePlayer([FromQuery] CreatePlayerDto playerCreate)
-    {
-        if (playerCreate == null)
-            return BadRequest(ModelState);
-
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
-
-        if (await playerRepository.EmailAlreadyTakenAsync(playerCreate.Email))
-            return BadRequest("Email with this account already exists");
-
-        var player = playerCreate.ToPlayerFromCreateDto();
-        await playerRepository.CreatePlayerAsync(player);
-        var playerDto = player.ToPlayerDto();
-
-        return Ok(playerDto);
-    }
 }

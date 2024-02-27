@@ -5,7 +5,8 @@ namespace SquashPointAPI.Interfaces;
 
 public interface ISetRepository
 {
-    Task<Set> CreateSetAsync(CreateSetDto setCreate);
+    Task<Set> GetSetAsync(int setId);
+    Task<Set> CreateSetAsync(Set set);
     Task<Set> UpdateWinnerAsync(int setId, UpdateSetRequestDto updateDto);
     Task<bool> SetExistsAsync(int setId);
 }

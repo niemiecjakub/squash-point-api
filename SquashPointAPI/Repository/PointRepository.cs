@@ -9,12 +9,8 @@ namespace SquashPointAPI.Repository;
 
 public class PointRepository(ApplicationDBContext context) : IPointRepository
 {
-    public async Task<Point> CreatePointAsync(CreatePointDto createPointDto)
+    public async Task<Point> CreatePointAsync(Point point)
     {
-        var winner = await context.Players.FirstAsync(p => p.Id.Equals(createPointDto.WinnerId));
-        var set = await context.Set.FirstAsync(s => s.Id == createPointDto.SetId);
-        var point = createPointDto.ToPointFromCreateDto(winner, set);
-
         await context.AddAsync(point);
         await context.SaveChangesAsync();
         return point;

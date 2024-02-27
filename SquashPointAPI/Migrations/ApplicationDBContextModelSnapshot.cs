@@ -51,13 +51,13 @@ namespace SquashPointAPI.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "7d86ce91-fab2-40fa-a887-7bd93ef21624",
+                            Id = "b27d33a3-c58d-4ea6-86d3-a435f1c02c39",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
-                            Id = "0fac3f27-da0e-4339-8bde-00199ccd48dd",
+                            Id = "b8fa1d52-cf08-4611-ad43-11e41756aeba",
                             Name = "User",
                             NormalizedName = "USER"
                         });
@@ -309,9 +309,6 @@ namespace SquashPointAPI.Migrations
                     b.Property<int>("GameId")
                         .HasColumnType("int");
 
-                    b.Property<int>("Id")
-                        .HasColumnType("int");
-
                     b.HasKey("PlayerId", "GameId");
 
                     b.HasIndex("GameId");
@@ -325,9 +322,6 @@ namespace SquashPointAPI.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<int>("LeagueId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Id")
                         .HasColumnType("int");
 
                     b.Property<int>("Score")

@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace SquashPointAPI.Migrations
 {
     /// <inheritdoc />
-    public partial class initial : Migration
+    public partial class ini : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -210,7 +210,6 @@ namespace SquashPointAPI.Migrations
                 {
                     PlayerId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     LeagueId = table.Column<int>(type: "int", nullable: false),
-                    Id = table.Column<int>(type: "int", nullable: false),
                     Score = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -235,8 +234,7 @@ namespace SquashPointAPI.Migrations
                 columns: table => new
                 {
                     PlayerId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    GameId = table.Column<int>(type: "int", nullable: false),
-                    Id = table.Column<int>(type: "int", nullable: false)
+                    GameId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -314,8 +312,8 @@ namespace SquashPointAPI.Migrations
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
                 values: new object[,]
                 {
-                    { "0fac3f27-da0e-4339-8bde-00199ccd48dd", null, "User", "USER" },
-                    { "7d86ce91-fab2-40fa-a887-7bd93ef21624", null, "Admin", "ADMIN" }
+                    { "b27d33a3-c58d-4ea6-86d3-a435f1c02c39", null, "Admin", "ADMIN" },
+                    { "b8fa1d52-cf08-4611-ad43-11e41756aeba", null, "User", "USER" }
                 });
 
             migrationBuilder.CreateIndex(

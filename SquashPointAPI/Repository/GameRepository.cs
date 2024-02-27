@@ -48,34 +48,14 @@ public class GameRepository(ApplicationDBContext context) : IGameRepository
         return await context.Games.AnyAsync(g => g.Id == gameId);
     }
 
-    public async Task<Game> CreateGameAsync(int leagueId, int player1Id, int player2Id, DateTime date)
+    public async Task<Game> CreateGameAsync(Game game, PlayerGame playerGame, PlayerGame opponentGame)
     {
-        var league = await context.Leagues.FindAsync(leagueId);
-        var player1 = await context.Players.FindAsync(player1Id);
-        var player2 = await context.Players.FindAsync(player2Id);
 
-        var newGame = new Game
-        {
-            League = league,
-            Status = "Unfinished",
-            Date = date
-        };
-        var playerGame1 = new PlayerGame
-        {
-            Player = player1,
-            Game = newGame
-        };
-        var playerGame2 = new PlayerGame
-        {
-            Player = player2,
-            Game = newGame
-        };
-        await context.Games.AddAsync(newGame);
-        await context.PlayerGames.AddAsync(playerGame1);
-        await context.PlayerGames.AddAsync(playerGame2);
+        await context.Games.AddAsync(game);
+        await context.PlayerGames.AddAsync(playerGame);
+        await context.PlayerGames.AddAsync(opponentGame);
         await context.SaveChangesAsync();
-
-        return newGame;
+        return game;
     }
 
     public async Task<Game?> UpdateAsync(int gameId, UpdateGameRequestDto updateDto)

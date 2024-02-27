@@ -62,16 +62,8 @@ internal class LeagueRepository(ApplicationDBContext context) : ILeagueRepositor
         return league;
     }
 
-    public async Task<PlayerLeague> AddPlayerToLeagueAsync(int leagueId, string playerId)
+    public async Task<PlayerLeague> AddPlayerToLeagueAsync(PlayerLeague playerLeague)
     {
-        var league = await context.Leagues.FirstAsync(l => l.Id == leagueId);
-        var player = await context.Players.FirstAsync(p => p.Id.Equals(playerId));
-        var playerLeague = new PlayerLeague
-        {
-            Player = player,
-            League = league,
-            Score = 0
-        };
         await context.AddAsync(playerLeague);
         await context.SaveChangesAsync();
         return playerLeague;

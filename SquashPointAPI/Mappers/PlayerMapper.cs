@@ -14,16 +14,6 @@ public static class PlayerMapper
         };
     }
 
-    public static Player ToPlayerFromCreateDto(this CreatePlayerDto playerDto)
-    {
-        return new Player
-        {
-            FirstName = playerDto.FirstName,
-            LastName = playerDto.LastName,
-            Email = playerDto.Email,
-            Sex = playerDto.Sex
-        };
-    }
 
     public static PlayerDetailsDto ToPlayerDetailsDto(this Player playerModel)
     {

@@ -9,15 +9,15 @@ namespace SquashPointAPI.Repository;
 
 public class SetRepository(ApplicationDBContext context) : ISetRepository
 {
-    public async Task<Set> CreateSetAsync(CreateSetDto setCreate)
+    public async Task<Set> GetSetAsync(int setId)
     {
-        var game = await context.Games.FirstAsync(g => g.Id == setCreate.GameId);
-        var winner = await context.Players.FirstOrDefaultAsync(p => p.Id.Equals(setCreate.WinnerId));
-        var set = setCreate.ToSetFromCreateDto(game, winner);
+        return await context.Set.FirstOrDefaultAsync(s => s.Id == setId);
+    }
 
+    public async Task<Set> CreateSetAsync(Set set)
+    {
         await context.AddAsync(set);
         await context.SaveChangesAsync();
-
         return set;
     }
 

@@ -104,39 +104,41 @@ public class LeagueController(ILeagueRepository leagueRepository, UserManager<Pl
         return Ok(leagueDto);
     }
 
-    [HttpPost("addPlayer")]
+    [HttpPost("join")]
     [Authorize]
     [ProducesResponseType(200, Type = typeof(PlayerLeague))]
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]
     public async Task<IActionResult> AddPlayerToLeague([FromQuery] int leagueId)
     {
-
         var userEmail = User.GetUserEmail();
         var player = userManager.FindByEmailAsync(userEmail).Result;
-        var league = leagueRepository.GetLeagueByIdAsync(leagueId);
         
         if (!ModelState.IsValid) return BadRequest(ModelState);
 
+        if (!await leagueRepository.LeagueExistsAsync(leagueId))
+        {
+            return BadRequest("League doesnt exist");
+        }
         if (await leagueRepository.IsPlayerInLeagueAsync(leagueId, player.Id))
         {
             ModelState.AddModelError("", "Player is already in this league");
             return StatusCode(422, ModelState);
         }
-
-        await leagueRepository.AddPlayerToLeagueAsync(leagueId, player.Id);
-
-        //TODO
-        // var playerLeagueModel = new PlayerLeague()
-        // {
-        //     LeagueId = leagueId,
-        //     PlayerId = player.Id
-        // };
         
-        return Ok("Succesfully added");
+        var playerLeague = new PlayerLeague()
+        {
+            LeagueId = leagueId,
+            PlayerId = player.Id,
+            Score = 0
+        };
+        await leagueRepository.AddPlayerToLeagueAsync(playerLeague);
+        
+        return Created();
     }
 
-    [HttpDelete("removePlayer")]
+    [HttpDelete("leave")]
+    [Authorize]
     public async Task<IActionResult> RemovePlayerFromLeague([FromQuery] int leagueId, [FromQuery] string playerId)
     {
         if (!ModelState.IsValid)
@@ -150,6 +152,7 @@ public class LeagueController(ILeagueRepository leagueRepository, UserManager<Pl
     }
 
     [HttpDelete]
+    [Authorize]
     public async Task<IActionResult> DeleteLeague([FromQuery] int leagueId)
     {
         if (!ModelState.IsValid)
