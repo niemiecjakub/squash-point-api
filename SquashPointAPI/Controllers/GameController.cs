@@ -12,11 +12,15 @@ namespace SquashPointAPI.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class GameController(IGameRepository gameRepository, ILeagueRepository leagueRepository, IPlayerRepository playerRepository, UserManager<Player> userManager) : Controller
+public class GameController(
+    IGameRepository gameRepository,
+    ILeagueRepository leagueRepository,
+    IPlayerRepository playerRepository,
+    UserManager<Player> userManager) : Controller
 {
-    [HttpGet("game-list")]
+    [HttpGet("all")]
     [ProducesResponseType(200, Type = typeof(IEnumerable<Game>))]
-    public async Task<IActionResult> GetAllGames([FromQuery] GameQueryObject gameGameQuery)
+    public async Task<IActionResult> GetGames([FromQuery] GameQueryObject gameGameQuery)
     {
         var games = await gameRepository.GetGamesAsync(gameGameQuery);
         var gameDtos = games.Select(g => g.ToGameDto()).ToList();
@@ -43,18 +47,16 @@ public class GameController(IGameRepository gameRepository, ILeagueRepository le
     [Authorize]
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]
-    public async Task<IActionResult> CreateGame([FromQuery] int leagueId, 
-        [FromQuery] string player2Id, [FromQuery] int year, [FromQuery] int month, [FromQuery] int day,
-        [FromQuery] int hour, [FromQuery] int minute)
+    public async Task<IActionResult> CreateGame([FromQuery] int leagueId,
+        [FromQuery] string opponentId, [FromQuery] DateTime date)
     {
         if (!ModelState.IsValid) return BadRequest(ModelState);
-        
+
         var league = await leagueRepository.GetLeagueByIdAsync(leagueId);
         var userEmail = User.GetUserEmail();
         var player = userManager.FindByEmailAsync(userEmail).Result;
-        var opponent = await playerRepository.GetPlayerAsync(player2Id);
-        var date = new DateTime(year, month, day, hour, minute, 0);
-        
+        var opponent = await playerRepository.GetPlayerAsync(opponentId);
+
         var game = new Game
         {
             League = league,
@@ -76,7 +78,7 @@ public class GameController(IGameRepository gameRepository, ILeagueRepository le
         {
             return BadRequest("Something went wrong");
         }
-        
+
         await gameRepository.CreateGameAsync(game, playerGame, opponentGame);
         var gameDto = game.ToGameDto();
 
@@ -86,7 +88,7 @@ public class GameController(IGameRepository gameRepository, ILeagueRepository le
     [HttpPut]
     [Authorize]
     [Route("{gameId:int}")]
-    public async Task<IActionResult> Update([FromRoute] int gameId, [FromBody] UpdateGameRequestDto updateDto)
+    public async Task<IActionResult> UpdateGame([FromRoute] int gameId, [FromBody] UpdateGameRequestDto updateDto)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
@@ -101,7 +103,7 @@ public class GameController(IGameRepository gameRepository, ILeagueRepository le
     [HttpDelete]
     [Authorize]
     [Route("{gameId:int}")]
-    public async Task<IActionResult> Delete([FromRoute] int gameId)
+    public async Task<IActionResult> DeleteGame([FromRoute] int gameId)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);

@@ -34,7 +34,7 @@ public class SetController(ISetRepository setRepository, IGameRepository gameRep
     [HttpPut]
     [Authorize]
     [Route("{setId:int}")]
-    public async Task<IActionResult> Update([FromRoute] int setId, [FromBody] UpdateSetRequestDto updateDto)
+    public async Task<IActionResult> UpdateSet([FromRoute] int setId, [FromBody] UpdateSetRequestDto updateDto)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);

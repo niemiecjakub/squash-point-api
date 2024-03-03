@@ -3,13 +3,17 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SquashPointAPI.Dto.Account;
 using SquashPointAPI.Interfaces;
+using SquashPointAPI.Mappers;
 using SquashPointAPI.Models;
 
 namespace SquashPointAPI.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class AccountController(UserManager<Player> userManager, SignInManager<Player> signinManager, ITokenService tokenService) : ControllerBase
+public class AccountController(
+    UserManager<Player> userManager,
+    SignInManager<Player> signinManager,
+    ITokenService tokenService) : ControllerBase
 {
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegisterDto registerDto)
@@ -19,7 +23,7 @@ public class AccountController(UserManager<Player> userManager, SignInManager<Pl
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var appUser = new Player
+            var user = new Player
             {
                 UserName = registerDto.Email,
                 Email = registerDto.Email,
@@ -28,31 +32,28 @@ public class AccountController(UserManager<Player> userManager, SignInManager<Pl
                 Sex = registerDto.Sex
             };
 
-            var createdUser = await userManager.CreateAsync(appUser, registerDto.Password);
+            var createdUser = await userManager.CreateAsync(user, registerDto.Password);
 
             if (createdUser.Succeeded)
             {
-                var roleResult = await userManager.AddToRoleAsync(appUser, "User");
+                var roleResult = await userManager.AddToRoleAsync(user, "User");
                 if (roleResult.Succeeded)
                 {
-                    return Ok(
-                        new NewUserDto
-                        {
-                            Email = appUser.Email,
-                            Token = tokenService.CreateToken(appUser)
-                        }
-                    );
+                    string token = tokenService.CreateToken(user);
+                    return Ok(user.ToNewUserDto(token));
                 }
-                    return StatusCode(500, roleResult.Errors);
+
+                return StatusCode(500, roleResult.Errors);
             }
-                return StatusCode(500, createdUser.Errors);
+
+            return StatusCode(500, createdUser.Errors);
         }
         catch (Exception e)
         {
             return StatusCode(500, e);
         }
     }
-    
+
     [HttpPost("login")]
     public async Task<IActionResult> Login(LoginDto loginDto)
     {
@@ -67,12 +68,7 @@ public class AccountController(UserManager<Player> userManager, SignInManager<Pl
 
         if (!result.Succeeded) return Unauthorized("Account not found and/or password incorrect");
 
-        return Ok(
-            new NewUserDto
-            {
-                Email = user.Email,
-                Token = tokenService.CreateToken(user)
-            }
-        );
+        string token = tokenService.CreateToken(user);
+        return Ok(user.ToNewUserDto(token));
     }
 }

@@ -10,9 +10,9 @@ namespace SquashPointAPI.Controllers;
 [ApiController]
 public class PlayerController(IPlayerRepository playerRepository) : Controller
 {
-    [HttpGet("player-list")]
+    [HttpGet("all")]
     [ProducesResponseType(200, Type = typeof(IEnumerable<Player>))]
-    public async Task<IActionResult> GetAllPlayers()
+    public async Task<IActionResult> GetPlayers()
     {
         if (!ModelState.IsValid) return BadRequest(ModelState);
 
@@ -36,16 +36,16 @@ public class PlayerController(IPlayerRepository playerRepository) : Controller
         return Ok(playerDto);
     }
 
-    [HttpGet("{playerId}/player-games")]
+    [HttpGet("{playerId}/games")]
     [ProducesResponseType(200, Type = typeof(IEnumerable<Game>))]
     [ProducesResponseType(400)]
-    public async Task<IActionResult> GetAllPlayerGames(string playerId)
+    public async Task<IActionResult> GetPlayerGames(string playerId)
     {
         if (!ModelState.IsValid) return BadRequest(ModelState);
 
         if (!await playerRepository.PlayerExistsAsync(playerId)) return NotFound();
 
-        var games = await playerRepository.GetAllPlayerGamesAsync(playerId);
+        var games = await playerRepository.GetPlayerGamesAsync(playerId);
         var gameDtos = games.Select(g => g.ToGameDto()).ToList();
 
         return Ok(gameDtos);

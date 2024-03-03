@@ -16,7 +16,7 @@ namespace SquashPointAPI.Controllers;
 [ApiController]
 public class LeagueController(ILeagueRepository leagueRepository, UserManager<Player> userManager) : Controller
 {
-    [HttpGet("league-list")]
+    [HttpGet("all")]
     [ProducesResponseType(200, Type = typeof(IEnumerable<LeagueDto>))]
     public async Task<IActionResult> GetLeagues()
     {
@@ -38,13 +38,14 @@ public class LeagueController(ILeagueRepository leagueRepository, UserManager<Pl
         if (!await leagueRepository.LeagueExistsAsync(leagueId)) return NotFound();
 
         var league = await leagueRepository.GetLeagueByIdAsync(leagueId);
+
         var leagueDetailsDto = league.ToLeagueDetailsDto();
 
         return Ok(leagueDetailsDto);
     }
 
 
-    [HttpGet("{leagueId}/player-list")]
+    [HttpGet("{leagueId}/players")]
     [ProducesResponseType(200, Type = typeof(IEnumerable<LeaguePlayerDto>))]
     [ProducesResponseType(400)]
     public async Task<IActionResult> GetLeaguePlayers(int leagueId)
@@ -60,7 +61,7 @@ public class LeagueController(ILeagueRepository leagueRepository, UserManager<Pl
         return Ok(leaguePlayerDtos);
     }
 
-    [HttpGet("{leagueId}/league-games")]
+    [HttpGet("{leagueId}/games")]
     [ProducesResponseType(200, Type = typeof(IEnumerable<GameDto>))]
     [ProducesResponseType(400)]
     public async Task<IActionResult> GetAllLeagueGames(int leagueId, [FromQuery] GameQueryObject gameQuery)
@@ -69,10 +70,10 @@ public class LeagueController(ILeagueRepository leagueRepository, UserManager<Pl
 
         if (!await leagueRepository.LeagueExistsAsync(leagueId)) return NotFound();
 
-        var games = await leagueRepository.GetLeagueGamesAsync(leagueId, gameQuery);
-        var gameDtos = games.Select(g => g.ToGameDto()).ToList();
+        var leagueGames = await leagueRepository.GetLeagueGamesAsync(leagueId, gameQuery);
+        var leagueGamesDto = leagueGames.Select(g => g.ToGameDto()).ToList();
 
-        return Ok(gameDtos);
+        return Ok(leagueGamesDto);
     }
 
     [HttpPost]
@@ -103,9 +104,8 @@ public class LeagueController(ILeagueRepository leagueRepository, UserManager<Pl
 
         return Ok(leagueDto);
     }
-    
+
     [HttpPost("join")]
-    [HttpPost("addPlayer")]
     [Authorize]
     [ProducesResponseType(200, Type = typeof(PlayerLeague))]
     [ProducesResponseType(204)]
@@ -114,20 +114,20 @@ public class LeagueController(ILeagueRepository leagueRepository, UserManager<Pl
     {
         var userEmail = User.GetUserEmail();
         var player = userManager.FindByEmailAsync(userEmail).Result;
-        
+
         if (!ModelState.IsValid) return BadRequest(ModelState);
 
         if (!await leagueRepository.LeagueExistsAsync(leagueId))
         {
             return BadRequest("League doesnt exist");
         }
-        
+
         if (await leagueRepository.IsPlayerInLeagueAsync(leagueId, player.Id))
         {
             ModelState.AddModelError("", "Player is already in this league");
             return StatusCode(422, ModelState);
         }
-        
+
         var playerLeague = new PlayerLeague()
         {
             LeagueId = leagueId,
@@ -135,18 +135,21 @@ public class LeagueController(ILeagueRepository leagueRepository, UserManager<Pl
             Score = 0
         };
         await leagueRepository.AddPlayerToLeagueAsync(playerLeague);
-        
+
         return Created();
     }
 
-    [HttpDelete("leave")]
+    [HttpPost("leave")]
     [Authorize]
-    public async Task<IActionResult> LeaveLeague([FromQuery] int leagueId, [FromQuery] string playerId)
+    public async Task<IActionResult> LeaveLeague([FromQuery] int leagueId)
     {
+        var userEmail = User.GetUserEmail();
+        var player = userManager.FindByEmailAsync(userEmail).Result;
+
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        var playerLeague = await leagueRepository.RemovePlayerAsync(leagueId, playerId);
+        var playerLeague = await leagueRepository.RemovePlayerAsync(leagueId, player.Id);
 
         if (playerLeague == null) return NotFound("This player isnt part of this league");
 

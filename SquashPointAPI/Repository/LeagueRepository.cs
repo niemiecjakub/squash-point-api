@@ -18,7 +18,9 @@ internal class LeagueRepository(ApplicationDBContext context) : ILeagueRepositor
     {
         return await context.Leagues
             .Include(l => l.Games.Where(g => g.League.Id == leagueId))
-            .Include(p => p.PlayerLeagues.Where(pl => pl.LeagueId == leagueId))
+            .ThenInclude(g => g.PlayerGames)
+            .ThenInclude(pg => pg.Player)
+            .Include(p => p.PlayerLeagues)
             .ThenInclude(pl => pl.Player)
             .ThenInclude(p => p.PlayerGames.Where(pg => pg.Game.League.Id == leagueId))
             .FirstAsync(l => l.Id == leagueId);
@@ -78,7 +80,7 @@ internal class LeagueRepository(ApplicationDBContext context) : ILeagueRepositor
     {
         var playerLeague = await context.PlayerLeagues
             .Where(pl => pl.LeagueId == leagueId)
-            .FirstOrDefaultAsync(pl => pl.PlayerId .Equals(playerId));
+            .FirstOrDefaultAsync(pl => pl.PlayerId.Equals(playerId));
 
         if (playerLeague == null) return null;
 

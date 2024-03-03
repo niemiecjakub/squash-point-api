@@ -27,7 +27,7 @@ public class PlayerRepository(ApplicationDBContext context) : IPlayerRepository
             .FirstOrDefaultAsync(p => p.Id.Equals(playerId));
     }
 
-    public async Task<ICollection<Game>> GetAllPlayerGamesAsync(string playerId)
+    public async Task<ICollection<Game>> GetPlayerGamesAsync(string playerId)
     {
         return await context.Games
             .Include(g => g.League)
@@ -45,20 +45,9 @@ public class PlayerRepository(ApplicationDBContext context) : IPlayerRepository
             .ToListAsync();
     }
 
-    public async Task<Player> CreatePlayerAsync(Player player)
-    {
-        await context.AddAsync(player);
-        await context.SaveChangesAsync();
-        return player;
-    }
-
     public async Task<bool> PlayerExistsAsync(string playerId)
     {
         return await context.Players.AnyAsync(p => p.Id.Equals(playerId));
     }
 
-    public async Task<bool> EmailAlreadyTakenAsync(string email)
-    {
-        return await context.Players.AnyAsync(p => p.Email == email);
-    }
 }
