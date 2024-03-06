@@ -33,7 +33,7 @@ public class PlayerRepository(ApplicationDBContext context) : IPlayerRepository
             .Include(g => g.League)
             .Include(g => g.PlayerGames)
             .ThenInclude(pg => pg.Player)
-            .Where(g => g.PlayerGames.Any(pg => pg.PlayerId.Equals(playerId) ))
+            .Where(g => g.PlayerGames.Any(pg => pg.PlayerId.Equals(playerId)))
             .ToListAsync();
     }
 
@@ -49,5 +49,4 @@ public class PlayerRepository(ApplicationDBContext context) : IPlayerRepository
     {
         return await context.Players.AnyAsync(p => p.Id.Equals(playerId));
     }
-
 }

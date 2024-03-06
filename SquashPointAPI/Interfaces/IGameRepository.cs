@@ -12,4 +12,5 @@ public interface IGameRepository
     Task<Game> CreateGameAsync(Game game, PlayerGame playerGame, PlayerGame opponentGame);
     Task<Game?> UpdateAsync(int gameId, UpdateGameRequestDto updateDto);
     Task<Game?> DeleteAsync(int gameId);
+    Task<Game?> GetGameBySetId(int setId);
 }

@@ -50,4 +50,19 @@ public class PlayerController(IPlayerRepository playerRepository) : Controller
 
         return Ok(gameDtos);
     }
+
+    [HttpGet("{playerId}/leagues")]
+    [ProducesResponseType(200, Type = typeof(IEnumerable<League>))]
+    [ProducesResponseType(400)]
+    public async Task<IActionResult> GetPlayerLeagues(string playerId)
+    {
+        if (!ModelState.IsValid) return BadRequest(ModelState);
+
+        if (!await playerRepository.PlayerExistsAsync(playerId)) return NotFound();
+
+        var leagues = await playerRepository.GetPlayerLeagues(playerId);
+        var leagueDtos = leagues.Select(l => l.ToLeagueDto()).ToList();
+
+        return Ok(leagueDtos);
+    }
 }

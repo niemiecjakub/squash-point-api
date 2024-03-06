@@ -50,7 +50,6 @@ public class GameRepository(ApplicationDBContext context) : IGameRepository
 
     public async Task<Game> CreateGameAsync(Game game, PlayerGame playerGame, PlayerGame opponentGame)
     {
-
         await context.Games.AddAsync(game);
         await context.PlayerGames.AddAsync(playerGame);
         await context.PlayerGames.AddAsync(opponentGame);
@@ -86,5 +85,17 @@ public class GameRepository(ApplicationDBContext context) : IGameRepository
         context.Games.Remove(game);
         await context.SaveChangesAsync();
         return game;
+    }
+
+    public async Task<Game?> GetGameBySetId(int setId)
+    {
+        var set = await context.Set.FirstAsync(s => s.Id == setId);
+        return await context.Games.Where(g => g.Sets.Contains(set)).Include(g => g.PlayerGames)
+            .ThenInclude(pg => pg.Player)
+            .Include(g => g.League)
+            .Include(g => g.Sets)
+            .ThenInclude(s => s.Points)
+            .ThenInclude(p => p.Winner)
+            .FirstOrDefaultAsync();
     }
 }

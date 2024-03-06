@@ -11,6 +11,5 @@ public class GameDto
     public PlayerDto? Winner { get; set; }
     public DateTime Date { get; set; }
     public DateTime CreatedAt { get; set; }
-
     public ICollection<PlayerDto> Players { get; set; }
 }

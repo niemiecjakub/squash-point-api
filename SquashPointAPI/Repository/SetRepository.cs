@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Diagnostics;
+using Microsoft.EntityFrameworkCore;
 using SquashPointAPI.Data;
 using SquashPointAPI.Dto.Set;
 using SquashPointAPI.Interfaces;
@@ -11,7 +12,10 @@ public class SetRepository(ApplicationDBContext context) : ISetRepository
 {
     public async Task<Set> GetSetAsync(int setId)
     {
-        return await context.Set.FirstOrDefaultAsync(s => s.Id == setId);
+        return await context.Set
+            .Include(s => s.Points)
+            .ThenInclude(p => p.Winner)
+            .FirstOrDefaultAsync(s => s.Id == setId);
     }
 
     public async Task<Set> CreateSetAsync(Set set)
@@ -24,8 +28,9 @@ public class SetRepository(ApplicationDBContext context) : ISetRepository
     public async Task<Set> UpdateWinnerAsync(int setId, UpdateSetRequestDto updateDto)
     {
         var set = await context.Set.FirstAsync(s => s.Id == setId);
-        set.Winner = await context.Players.FirstAsync(p => p.Id.Equals(updateDto.WinnerId));
-
+        Player setWinner = await context.Players.FirstAsync(p => p.Id.Equals(updateDto.WinnerId));
+        Console.WriteLine(setWinner.FirstName);
+        set.Winner = setWinner;
         await context.SaveChangesAsync();
 
         return set;
