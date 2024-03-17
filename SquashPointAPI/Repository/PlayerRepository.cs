@@ -37,6 +37,27 @@ public class PlayerRepository(ApplicationDBContext context) : IPlayerRepository
             .ToListAsync();
     }
 
+    public async Task<ICollection<Game>> GetPlayerFinishedGamesAsync(string playerId)
+    {
+        return await context.Games
+            .Where(g => g.PlayerGames.Any(pg => pg.PlayerId.Equals(playerId)) && g.Status == "Finished")
+            .Include(g => g.Sets)
+            .ThenInclude(s => s.Winner)
+            .Include(g => g.Sets)
+            .ThenInclude(s => s.Points)
+            .ToListAsync();
+    }
+
+    public Task<ICollection<Set>> GetPlayerSets(string playerId)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<ICollection<Point>> GetPlayerPoints(string playerId)
+    {
+        throw new NotImplementedException();
+    }
+
     public async Task<ICollection<League>> GetPlayerLeagues(string playerId)
     {
         return await context.PlayerLeagues

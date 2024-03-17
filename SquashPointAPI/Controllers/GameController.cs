@@ -19,7 +19,7 @@ public class GameController(
     UserManager<Player> userManager) : Controller
 {
     [HttpGet("all")]
-    [ProducesResponseType(200, Type = typeof(IEnumerable<Game>))]
+    [ProducesResponseType(200, Type = typeof(IEnumerable<GameDto>))]
     public async Task<IActionResult> GetGames([FromQuery] GameQueryObject gameGameQuery)
     {
         var games = await gameRepository.GetGamesAsync(gameGameQuery);
@@ -29,7 +29,7 @@ public class GameController(
     }
 
     [HttpGet("{gameId}")]
-    [ProducesResponseType(200, Type = typeof(Game))]
+    [ProducesResponseType(200, Type = typeof(GameDetailsDto))]
     [ProducesResponseType(400)]
     public async Task<IActionResult> GetGameById(int gameId)
     {
@@ -44,7 +44,7 @@ public class GameController(
     }
 
     [HttpGet("{gameId}/summary")]
-    [ProducesResponseType(200, Type = typeof(Game))]
+    [ProducesResponseType(200, Type = typeof(GameSummaryDto))]
     [ProducesResponseType(400)]
     public async Task<IActionResult> GetGameSummaryById(int gameId)
     {
@@ -53,32 +53,6 @@ public class GameController(
         if (!await gameRepository.GameExistsAsync(gameId)) return NotFound();
 
         var game = await gameRepository.GetGameByIdAsync(gameId);
-        var players = game.ToGameDto().Players.ToList();
-        var sets = game.Sets.ToList();
-
-        var gameSummary = new
-        {
-            Winner = $"{game.Winner.FirstName} {game.Winner.LastName}",
-            League = game.League.Name,
-            Status = game.Status,
-            CreatedAt = game.CreatedAt,
-            Sets = sets.Select(set => new
-            {
-                Id = set.Id,
-                CreatedAt = set.CreatedAt,
-                Winner = $"{set.Winner?.FirstName} {set.Winner?.LastName}",
-                Player1 = new
-                {
-                    Name = players[0].FullName,
-                    Points = set.Points?.Where(p => p.Winner.Id == players[0].Id).Count()
-                },
-                Player2 = new
-                {
-                    Name = players[1].FullName,
-                    Points = set.Points?.Where(p => p.Winner.Id == players[1].Id).Count()
-                }
-            }).OrderBy(s => s.CreatedAt).ToList()
-        };
 
         var gameDto = game.ToGameSummaryDto();
 
