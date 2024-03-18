@@ -48,16 +48,6 @@ public class PlayerRepository(ApplicationDBContext context) : IPlayerRepository
             .ToListAsync();
     }
 
-    public Task<ICollection<Set>> GetPlayerSets(string playerId)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<ICollection<Point>> GetPlayerPoints(string playerId)
-    {
-        throw new NotImplementedException();
-    }
-
     public async Task<ICollection<League>> GetPlayerLeagues(string playerId)
     {
         return await context.PlayerLeagues

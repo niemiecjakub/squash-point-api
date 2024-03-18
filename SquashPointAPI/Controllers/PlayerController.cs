@@ -83,27 +83,31 @@ public class PlayerController(
         var sets = games.SelectMany(g => g.Sets);
         var points = sets.SelectMany(s => s.Points);
 
-        var overview = new
+        var overview = new[]
         {
-            Games = new
+            new
             {
+                name = "Games",
                 played = games.Count(),
                 won = games.Count(g => g.Winner == player),
                 lost = games.Count(g => g.Winner != player)
             },
-            Sets = new
+            new
             {
+                name = "Sets",
                 played = sets.Count(),
                 won = sets.Count(s => s.Winner == player),
                 lost = sets.Count(s => s.Winner != player)
             },
-            Points = new
+            new
             {
+                name = "Points",
                 played = points.Count(),
                 won = points.Count(s => s.Winner == player),
                 lost = points.Count(s => s.Winner != player)
             }
         };
+
 
         return Ok(overview);
     }
