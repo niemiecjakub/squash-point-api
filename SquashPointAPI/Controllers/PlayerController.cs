@@ -1,7 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using SquashPointAPI.Dto.Game;
 using SquashPointAPI.Dto.League;
 using SquashPointAPI.Dto.Player;
+using SquashPointAPI.Extensions;
 using SquashPointAPI.Interfaces;
 using SquashPointAPI.Mappers;
 using SquashPointAPI.Models;
@@ -11,7 +14,8 @@ namespace SquashPointAPI.Controllers;
 [Route("api/[controller]")]
 [ApiController]
 public class PlayerController(
-    IPlayerRepository playerRepository) : Controller
+    IPlayerRepository playerRepository,
+    UserManager<Player> userManager) : Controller
 {
     [HttpGet("all")]
     [ProducesResponseType(200, Type = typeof(IEnumerable<PlayerDto>))]
@@ -83,6 +87,7 @@ public class PlayerController(
         var sets = games.SelectMany(g => g.Sets);
         var points = sets.SelectMany(s => s.Points);
 
+
         var overview = new[]
         {
             new
@@ -110,5 +115,64 @@ public class PlayerController(
 
 
         return Ok(overview);
+    }
+
+    [HttpGet("{playerId}/friends")]
+    [ProducesResponseType(200, Type = typeof(IEnumerable<Player>))]
+    [ProducesResponseType(400)]
+    public async Task<IActionResult> GetPlayerFriends(string playerId)
+    {
+        if (!ModelState.IsValid) return BadRequest(ModelState);
+
+        if (!await playerRepository.PlayerExistsAsync(playerId)) return NotFound();
+
+        var friends = await playerRepository.GetPlayerFriendsAsync(playerId);
+        var friendDtos = friends.Select(p => p.ToPlayerDto()).ToList();
+
+        //TODO
+
+        return Ok(friendDtos);
+    }
+
+    [HttpPost("follow")]
+    [Authorize]
+    [ProducesResponseType(204)]
+    [ProducesResponseType(400)]
+    public async Task<IActionResult> FollowPlayer([FromQuery] string playerId)
+    {
+        if (!ModelState.IsValid) return BadRequest(ModelState);
+        if (!await playerRepository.PlayerExistsAsync(playerId)) return NotFound();
+
+        var userEmail = User.GetUserEmail();
+        var player = userManager.FindByEmailAsync(userEmail).Result;
+        var folowee = await playerRepository.GetPlayerAsync(playerId);
+
+
+        var playerFollowee = new FollowerFollowee()
+        {
+            Follower = player,
+            Followee = folowee
+        };
+
+
+        await playerRepository.FollowPlayerAsync(playerFollowee);
+
+        return Ok(playerFollowee);
+    }
+
+    [HttpPost("friend")]
+    [Authorize]
+    [ProducesResponseType(204)]
+    [ProducesResponseType(400)]
+    public async Task<IActionResult> AddFriend([FromQuery] string playerId)
+    {
+        if (!ModelState.IsValid) return BadRequest(ModelState);
+
+        var userEmail = User.GetUserEmail();
+        var player = userManager.FindByEmailAsync(userEmail).Result;
+        var friend = await playerRepository.GetPlayerAsync(playerId);
+
+        //TODO
+        return Ok();
     }
 }

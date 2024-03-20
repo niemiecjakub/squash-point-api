@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.EntityFrameworkCore;
 using SquashPointAPI.Data;
 using SquashPointAPI.Interfaces;
 using SquashPointAPI.Models;
@@ -55,6 +56,29 @@ public class PlayerRepository(ApplicationDBContext context) : IPlayerRepository
             .Select(pl => pl.League)
             .ToListAsync();
     }
+
+    public async Task<ICollection<Player>> GetPlayerFriendsAsync(string playerId)
+    {
+        throw new NotImplementedException();
+    }
+
+    public async Task<ICollection<Player>> GetPlayerFollowersAsync(string playerId)
+    {
+        return await context.FollowerFollowee.Where(pf => pf.Followee.Id == playerId).Select(pf => pf.Followee)
+            .ToListAsync();
+    }
+
+    public async Task<ICollection<Player>> GetPlayerFollowingAsync(string playerId)
+    {
+        return await context.FollowerFollowee.Where(pf => pf.FollowerId == playerId).Select(pf => pf.Followee)
+            .ToListAsync();
+    }
+
+    public async Task FollowPlayerAsync(FollowerFollowee playerFollow)
+    {
+        await context.FollowerFollowee.AddAsync(playerFollow);
+    }
+
 
     public async Task<bool> PlayerExistsAsync(string playerId)
     {

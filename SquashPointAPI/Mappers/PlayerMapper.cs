@@ -55,12 +55,4 @@ public static class PlayerMapper
             Token = token
         };
     }
-
-    //TODO
-    public static PlayerGamesOverviewDto ToPlayerGamesOverviewDto(this ICollection<Game> gameModels, string playerId)
-    {
-        return new PlayerGamesOverviewDto
-        {
-        };
-    }
 }

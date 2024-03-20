@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SquashPointAPI.Data;
 
@@ -11,9 +12,11 @@ using SquashPointAPI.Data;
 namespace SquashPointAPI.Migrations
 {
     [DbContext(typeof(ApplicationDBContext))]
-    partial class ApplicationDBContextModelSnapshot : ModelSnapshot
+    [Migration("20240319233940_followers2")]
+    partial class followers2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -51,13 +54,13 @@ namespace SquashPointAPI.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "7c8662bf-41d8-4396-b82f-c197bd6f3e35",
+                            Id = "e97a3274-1c67-4607-9663-0147340c609f",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
-                            Id = "baebf11b-31b5-4841-9b12-2bce90e51c39",
+                            Id = "6764861d-73fe-4af4-800f-a0a60623fa4c",
                             Name = "User",
                             NormalizedName = "USER"
                         });
@@ -167,21 +170,6 @@ namespace SquashPointAPI.Migrations
                     b.HasKey("UserId", "LoginProvider", "Name");
 
                     b.ToTable("AspNetUserTokens", (string)null);
-                });
-
-            modelBuilder.Entity("SquashPointAPI.Models.FollowerFollowee", b =>
-                {
-                    b.Property<string>("FollowerId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("FolloweeId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("FollowerId", "FolloweeId");
-
-                    b.HasIndex("FolloweeId");
-
-                    b.ToTable("FollowerFollowee");
                 });
 
             modelBuilder.Entity("SquashPointAPI.Models.Game", b =>
@@ -314,6 +302,21 @@ namespace SquashPointAPI.Migrations
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("AspNetUsers", (string)null);
+                });
+
+            modelBuilder.Entity("SquashPointAPI.Models.PlayerFollow", b =>
+                {
+                    b.Property<string>("PlayerId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("FollowerId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("PlayerId", "FollowerId");
+
+                    b.HasIndex("FollowerId");
+
+                    b.ToTable("PlayerFollow");
                 });
 
             modelBuilder.Entity("SquashPointAPI.Models.PlayerFriend", b =>
@@ -475,24 +478,6 @@ namespace SquashPointAPI.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("SquashPointAPI.Models.FollowerFollowee", b =>
-                {
-                    b.HasOne("SquashPointAPI.Models.Player", "Followee")
-                        .WithMany()
-                        .HasForeignKey("FolloweeId")
-                        .IsRequired();
-
-                    b.HasOne("SquashPointAPI.Models.Player", "Follower")
-                        .WithMany("Following")
-                        .HasForeignKey("FollowerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Followee");
-
-                    b.Navigation("Follower");
-                });
-
             modelBuilder.Entity("SquashPointAPI.Models.Game", b =>
                 {
                     b.HasOne("SquashPointAPI.Models.League", "League")
@@ -508,6 +493,24 @@ namespace SquashPointAPI.Migrations
                     b.Navigation("League");
 
                     b.Navigation("Winner");
+                });
+
+            modelBuilder.Entity("SquashPointAPI.Models.PlayerFollow", b =>
+                {
+                    b.HasOne("SquashPointAPI.Models.Player", "Follower")
+                        .WithMany()
+                        .HasForeignKey("FollowerId")
+                        .IsRequired();
+
+                    b.HasOne("SquashPointAPI.Models.Player", "Player")
+                        .WithMany("Following")
+                        .HasForeignKey("PlayerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Follower");
+
+                    b.Navigation("Player");
                 });
 
             modelBuilder.Entity("SquashPointAPI.Models.PlayerFriend", b =>

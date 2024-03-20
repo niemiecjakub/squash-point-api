@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SquashPointAPI.Data;
 
@@ -11,9 +12,11 @@ using SquashPointAPI.Data;
 namespace SquashPointAPI.Migrations
 {
     [DbContext(typeof(ApplicationDBContext))]
-    partial class ApplicationDBContextModelSnapshot : ModelSnapshot
+    [Migration("20240319232556_followers")]
+    partial class followers
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -51,13 +54,13 @@ namespace SquashPointAPI.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "7c8662bf-41d8-4396-b82f-c197bd6f3e35",
+                            Id = "1f2c2a8f-89b3-4b17-ac5d-4847bc9a5e14",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
-                            Id = "baebf11b-31b5-4841-9b12-2bce90e51c39",
+                            Id = "a16ddafa-e5ad-441a-98a0-2b3ad2d576bf",
                             Name = "User",
                             NormalizedName = "USER"
                         });
@@ -169,19 +172,19 @@ namespace SquashPointAPI.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("SquashPointAPI.Models.FollowerFollowee", b =>
+            modelBuilder.Entity("PlayerPlayer", b =>
                 {
-                    b.Property<string>("FollowerId")
+                    b.Property<string>("FollowersId")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("FolloweeId")
+                    b.Property<string>("FollowingId")
                         .HasColumnType("nvarchar(450)");
 
-                    b.HasKey("FollowerId", "FolloweeId");
+                    b.HasKey("FollowersId", "FollowingId");
 
-                    b.HasIndex("FolloweeId");
+                    b.HasIndex("FollowingId");
 
-                    b.ToTable("FollowerFollowee");
+                    b.ToTable("PlayerPlayer");
                 });
 
             modelBuilder.Entity("SquashPointAPI.Models.Game", b =>
@@ -475,22 +478,19 @@ namespace SquashPointAPI.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("SquashPointAPI.Models.FollowerFollowee", b =>
+            modelBuilder.Entity("PlayerPlayer", b =>
                 {
-                    b.HasOne("SquashPointAPI.Models.Player", "Followee")
+                    b.HasOne("SquashPointAPI.Models.Player", null)
                         .WithMany()
-                        .HasForeignKey("FolloweeId")
-                        .IsRequired();
-
-                    b.HasOne("SquashPointAPI.Models.Player", "Follower")
-                        .WithMany("Following")
-                        .HasForeignKey("FollowerId")
+                        .HasForeignKey("FollowersId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Followee");
-
-                    b.Navigation("Follower");
+                    b.HasOne("SquashPointAPI.Models.Player", null)
+                        .WithMany()
+                        .HasForeignKey("FollowingId")
+                        .OnDelete(DeleteBehavior.ClientCascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("SquashPointAPI.Models.Game", b =>
@@ -618,8 +618,6 @@ namespace SquashPointAPI.Migrations
 
             modelBuilder.Entity("SquashPointAPI.Models.Player", b =>
                 {
-                    b.Navigation("Following");
-
                     b.Navigation("Friends");
 
                     b.Navigation("PlayerGames");
