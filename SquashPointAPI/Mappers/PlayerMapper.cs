@@ -20,8 +20,6 @@ public static class PlayerMapper
 
     public static PlayerDetailsDto ToPlayerDetailsDto(this Player playerModel, ICollection<Player> followers, ICollection<Player> folowees)
     {
-        
-        
         return new PlayerDetailsDto
         {
             Id = playerModel.Id,
@@ -57,7 +55,17 @@ public static class PlayerMapper
             Id = playerModel.Id,
             FullName = playerModel.FirstName + " " + playerModel.LastName,
             Email = playerModel.Email,
-            Token = token
+            Token = token,
+        };
+    }
+    
+    public static PlayerSocialDto ToPlayerSocialDto(this Player playerModel, ICollection<Player> followers, ICollection<Player> followees)
+    {
+        
+        return new PlayerSocialDto
+        {
+            Followers = followers.Select(p => p.ToPlayerDto()).ToList(),
+            Following = followees.Select(p => p.ToPlayerDto()).ToList(),
         };
     }
 }

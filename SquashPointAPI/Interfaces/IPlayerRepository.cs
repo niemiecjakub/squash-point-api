@@ -12,7 +12,9 @@ public interface IPlayerRepository
     Task<ICollection<Player>> GetPlayerFriendsAsync(string playerId);
     Task<ICollection<Player>> GetPlayerFollowersAsync(string playerId);
     Task<ICollection<Player>> GetPlayerFolloweesAsync(string playerId);
-    Task FollowPlayerAsync(FollowerFollowee playerFollow);
+    Task<bool> FollowPlayerAsync(FollowerFollowee playerFollow);
+    Task<bool> UnollowPlayerAsync(Player follower, Player followee);
+    Task<Player> LoginUserAsync(string email);
 
     Task<bool> PlayerExistsAsync(string playerId);
 }

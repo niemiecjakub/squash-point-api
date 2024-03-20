@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using SquashPointAPI.Dto.Game;
 using SquashPointAPI.Dto.League;
 using SquashPointAPI.Dto.Player;
@@ -178,17 +179,41 @@ public class PlayerController(
 
         var userEmail = User.GetUserEmail();
         var player = userManager.FindByEmailAsync(userEmail).Result;
-        var folowee = await playerRepository.GetPlayerAsync(playerId);
+        var followee = await playerRepository.GetPlayerAsync(playerId);
 
         var playerFollowee = new FollowerFollowee()
         {
             Follower = player,
-            Followee = folowee
+            Followee = followee
         };
 
-        await playerRepository.FollowPlayerAsync(playerFollowee);
+        if (await playerRepository.FollowPlayerAsync(playerFollowee))
+        {
+            return Ok("Ok");
+        }
 
-        return Ok();
+        return BadRequest();
+    }
+    
+    [HttpDelete("unfollow")]
+    [Authorize]
+    [ProducesResponseType(204)]
+    [ProducesResponseType(400)]
+    public async Task<IActionResult> UnfollowPlayer([FromQuery] string playerId)
+    {
+        if (!ModelState.IsValid) return BadRequest(ModelState);
+        if (!await playerRepository.PlayerExistsAsync(playerId)) return NotFound();
+
+        var userEmail = User.GetUserEmail();
+        var player = userManager.FindByEmailAsync(userEmail).Result;
+        var followee = await playerRepository.GetPlayerAsync(playerId);
+        
+        if (await playerRepository.UnollowPlayerAsync(player, followee))
+        {
+            return Ok("Ok");
+        }
+
+        return BadRequest("Failed");
     }
 
     [HttpPost("friend")]
@@ -205,5 +230,25 @@ public class PlayerController(
 
         //TODO
         return Ok();
+    }
+    
+    [HttpGet("{playerId}/social")]
+    public async Task<IActionResult> SocialData(string playerId)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+        
+        if (!await playerRepository.PlayerExistsAsync(playerId))
+        {
+            return NotFound();
+        }
+
+        var user = await userManager.Users.FirstAsync(u => u.Id == playerId);
+        var followers = await playerRepository.GetPlayerFollowersAsync(playerId);
+        var followees = await playerRepository.GetPlayerFolloweesAsync(playerId);
+        
+        var playerSocialDto = user.ToPlayerSocialDto(followers, followees);
+        
+        return Ok(playerSocialDto);
     }
 }

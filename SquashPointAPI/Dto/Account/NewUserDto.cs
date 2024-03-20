@@ -1,4 +1,6 @@
-﻿namespace SquashPointAPI.Dto.Account;
+﻿using SquashPointAPI.Dto.Player;
+
+namespace SquashPointAPI.Dto.Account;
 
 public class NewUserDto
 {

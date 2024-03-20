@@ -12,7 +12,9 @@ namespace SquashPointAPI.Controllers;
 [ApiController]
 public class AccountController(
     UserManager<Player> userManager,
+    IPlayerRepository playerRepository,
     SignInManager<Player> signinManager,
+    
     ITokenService tokenService) : ControllerBase
 {
     [HttpPost("register")]
@@ -60,7 +62,7 @@ public class AccountController(
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        var user = await userManager.Users.FirstOrDefaultAsync(x => x.Email == loginDto.Email.ToLower());
+        var user = await playerRepository.LoginUserAsync(loginDto.Email);
 
         if (user == null) return Unauthorized("Invalid Email!");
 
@@ -69,6 +71,8 @@ public class AccountController(
         if (!result.Succeeded) return Unauthorized("Account not found and/or password incorrect");
 
         string token = tokenService.CreateToken(user);
-        return Ok(user.ToNewUserDto(token));
+        var userDto = user.ToNewUserDto(token);
+
+        return Ok(userDto);
     }
 }
