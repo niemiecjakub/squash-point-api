@@ -38,7 +38,10 @@ public class PlayerController(
 
         if (!await playerRepository.PlayerExistsAsync(playerId)) return NotFound();
         var player = await playerRepository.GetPlayerAsync(playerId);
-        var playerDto = player.ToPlayerDetailsDto();
+        var followers = await playerRepository.GetPlayerFollowersAsync(playerId);
+        var folowees = await playerRepository.GetPlayerFolloweesAsync(playerId);
+        
+        var playerDto = player.ToPlayerDetailsDto(followers, folowees);
 
         return Ok(playerDto);
     }
@@ -134,6 +137,36 @@ public class PlayerController(
         return Ok(friendDtos);
     }
 
+
+    [HttpGet("{playerId}/followers")]
+    [ProducesResponseType(204)]
+    [ProducesResponseType(400)]
+    public async Task<IActionResult> GetPlayerFollowers(string playerId)
+    {
+        if (!ModelState.IsValid) return BadRequest(ModelState);
+        if (!await playerRepository.PlayerExistsAsync(playerId)) return NotFound();
+
+        var followers = await playerRepository.GetPlayerFollowersAsync(playerId);
+        var followersDto = followers.Select(f => f.ToPlayerDto()).ToList();
+
+        return Ok(followersDto);
+    }
+    
+    [HttpGet("{playerId}/followees")]
+    [ProducesResponseType(204)]
+    [ProducesResponseType(400)]
+    public async Task<IActionResult> GetPlayerFollowees(string playerId)
+    {
+        if (!ModelState.IsValid) return BadRequest(ModelState);
+        if (!await playerRepository.PlayerExistsAsync(playerId)) return NotFound();
+
+        var followees = await playerRepository.GetPlayerFolloweesAsync(playerId);
+        var followeesDto = followees.Select(f => f.ToPlayerDto()).ToList();
+
+        return Ok(followeesDto);
+    }
+
+    
     [HttpPost("follow")]
     [Authorize]
     [ProducesResponseType(204)]
@@ -147,17 +180,15 @@ public class PlayerController(
         var player = userManager.FindByEmailAsync(userEmail).Result;
         var folowee = await playerRepository.GetPlayerAsync(playerId);
 
-
         var playerFollowee = new FollowerFollowee()
         {
             Follower = player,
             Followee = folowee
         };
 
-
         await playerRepository.FollowPlayerAsync(playerFollowee);
 
-        return Ok(playerFollowee);
+        return Ok();
     }
 
     [HttpPost("friend")]

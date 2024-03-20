@@ -58,7 +58,8 @@ public class ApplicationDBContext : IdentityDbContext<Player>
             b.HasOne(e => e.Player).WithMany(e => e.Friends);
             b.HasOne(e => e.Friend).WithMany().OnDelete(DeleteBehavior.ClientSetNull);
         });
-
+        
+        
         builder.Entity<FollowerFollowee>(b =>
         {
             b.HasKey(e => new { e.FollowerId, e.FolloweeId });

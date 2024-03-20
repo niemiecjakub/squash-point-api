@@ -1,4 +1,5 @@
-﻿using SquashPointAPI.Dto.Account;
+﻿using System.Diagnostics;
+using SquashPointAPI.Dto.Account;
 using SquashPointAPI.Dto.Player;
 using SquashPointAPI.Interfaces;
 using SquashPointAPI.Models;
@@ -17,8 +18,10 @@ public static class PlayerMapper
     }
 
 
-    public static PlayerDetailsDto ToPlayerDetailsDto(this Player playerModel)
+    public static PlayerDetailsDto ToPlayerDetailsDto(this Player playerModel, ICollection<Player> followers, ICollection<Player> folowees)
     {
+        
+        
         return new PlayerDetailsDto
         {
             Id = playerModel.Id,
@@ -26,7 +29,9 @@ public static class PlayerMapper
             Sex = playerModel.Sex,
             Email = playerModel.Email,
             Leagues = playerModel.PlayerLeagues.Select(pl => pl.League.ToLeagueDto()).ToList(),
-            Games = playerModel.PlayerGames.Select(pg => pg.Game.ToGameDto()).ToList()
+            Games = playerModel.PlayerGames.Select(pg => pg.Game.ToGameDto()).ToList(),
+            Followers = followers.Count(),
+            Following =  folowees.Count()
         };
     }
 

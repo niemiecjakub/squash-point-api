@@ -1,10 +1,12 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 
 namespace SquashPointAPI.Models;
 
 [Table("FollowerFollowee")]
 public class FollowerFollowee
 {
+    public int Id { get; set; }
     public Player Follower { get; set; }
     public Player Followee { get; set; }
 

@@ -9,4 +9,6 @@ public class PlayerDetailsDto : PlayerDto
     public string Email { get; set; }
     public List<LeagueDto> Leagues { get; set; }
     public List<GameDto> Games { get; set; }
+    public int Followers { get; set; }
+    public int Following { get; set; }
 }

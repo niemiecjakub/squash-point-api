@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http.HttpResults;
+﻿using System.Diagnostics;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 using SquashPointAPI.Data;
 using SquashPointAPI.Interfaces;
@@ -16,6 +17,7 @@ public class PlayerRepository(ApplicationDBContext context) : IPlayerRepository
     public async Task<Player> GetPlayerAsync(string playerId)
     {
         return await context.Players
+            .Include(p => p.Following)
             .Include(p => p.PlayerLeagues)
             .ThenInclude(pg => pg.League)
             .Include(p => p.PlayerGames)
@@ -64,19 +66,21 @@ public class PlayerRepository(ApplicationDBContext context) : IPlayerRepository
 
     public async Task<ICollection<Player>> GetPlayerFollowersAsync(string playerId)
     {
-        return await context.FollowerFollowee.Where(pf => pf.Followee.Id == playerId).Select(pf => pf.Followee)
+        return await context.FollowerFollowee.Where(pf => pf.Followee.Id == playerId).Select(pf => pf.Follower)
+            .ToListAsync();
+    }
+    
+    public async Task<ICollection<Player>> GetPlayerFolloweesAsync(string playerId)
+    {
+        return await context.FollowerFollowee.Where(pf => pf.Follower.Id == playerId).Select(pf => pf.Followee)
             .ToListAsync();
     }
 
-    public async Task<ICollection<Player>> GetPlayerFollowingAsync(string playerId)
-    {
-        return await context.FollowerFollowee.Where(pf => pf.FollowerId == playerId).Select(pf => pf.Followee)
-            .ToListAsync();
-    }
 
     public async Task FollowPlayerAsync(FollowerFollowee playerFollow)
     {
         await context.FollowerFollowee.AddAsync(playerFollow);
+        await context.SaveChangesAsync();
     }
 
 

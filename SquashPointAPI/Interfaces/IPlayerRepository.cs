@@ -11,7 +11,7 @@ public interface IPlayerRepository
     Task<ICollection<League>> GetPlayerLeagues(string playerId);
     Task<ICollection<Player>> GetPlayerFriendsAsync(string playerId);
     Task<ICollection<Player>> GetPlayerFollowersAsync(string playerId);
-    Task<ICollection<Player>> GetPlayerFollowingAsync(string playerId);
+    Task<ICollection<Player>> GetPlayerFolloweesAsync(string playerId);
     Task FollowPlayerAsync(FollowerFollowee playerFollow);
 
     Task<bool> PlayerExistsAsync(string playerId);
