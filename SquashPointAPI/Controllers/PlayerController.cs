@@ -210,9 +210,9 @@ public class PlayerController(
         if (!await playerRepository.PlayerExistsAsync(playerId)) return NotFound();
 
         var friends = await playerRepository.GetPlayerFriendsAsync(playerId);
-        var friendDtos = friends.ToFriendsDto();
+        var playeFriendsDto = friends.Where(pf => pf.Status.Equals(1)).Select(pf => pf.Friend.ToPlayerDto()).ToList();
 
-        return Ok(friendDtos);
+        return Ok(playeFriendsDto);
     }
 
     [HttpPost("friend/request")]

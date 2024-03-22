@@ -61,8 +61,9 @@ public class PlayerRepository(ApplicationDBContext context, UserManager<Player> 
     public async Task<ICollection<PlayerFriend>> GetPlayerFriendsAsync(string playerId)
     {
         return await context.PlayerFriends
-            .Where(pf => pf.PlayerId.Equals(playerId))
+            .Where(pf => pf.PlayerId.Equals(playerId) || pf.FriendId.Equals(playerId))
             .Include(pf => pf.Friend)
+            .Include(pf => pf.Player)
             .ToListAsync();
     }
 
