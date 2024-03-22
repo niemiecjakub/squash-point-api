@@ -11,12 +11,18 @@ internal class LeagueRepository(ApplicationDBContext context) : ILeagueRepositor
 {
     public async Task<ICollection<League>> GetLeaguesAsync()
     {
-        return await context.Leagues.OrderBy(l => l.Id).ToListAsync();
+        return await context.Leagues
+            .Include(l => l.Owner)
+            .Include(p => p.PlayerLeagues)
+            .ThenInclude(pl => pl.Player)
+            .OrderBy(l => l.Id)
+            .ToListAsync();
     }
 
     public async Task<League> GetLeagueByIdAsync(int leagueId)
     {
         return await context.Leagues
+            .Include(l => l.Owner)
             .Include(l => l.Games.Where(g => g.League.Id == leagueId))
             .ThenInclude(g => g.PlayerGames)
             .ThenInclude(pg => pg.Player)

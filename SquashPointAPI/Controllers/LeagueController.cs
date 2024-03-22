@@ -77,6 +77,7 @@ public class LeagueController(ILeagueRepository leagueRepository, UserManager<Pl
     }
 
     [HttpPost]
+    [Authorize]
     [ProducesResponseType(200, Type = typeof(LeagueDto))]
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]
@@ -97,12 +98,12 @@ public class LeagueController(ILeagueRepository leagueRepository, UserManager<Pl
             ModelState.AddModelError("", "League already exists");
             return StatusCode(422, ModelState);
         }
-
-        var league = leagueCreate.ToLeagueFromCreateDTO();
+        var userEmail = User.GetUserEmail();
+        var owner = userManager.FindByEmailAsync(userEmail).Result;
+        var league = leagueCreate.ToLeagueFromCreateDTO(owner);
         await leagueRepository.CreateLeagueAsync(league);
-        var leagueDto = league.ToLeagueDto();
 
-        return Ok(leagueDto);
+        return Ok("created");
     }
 
     [HttpPost("join")]

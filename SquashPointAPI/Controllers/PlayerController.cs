@@ -223,7 +223,7 @@ public class PlayerController(
     public async Task<IActionResult> AddFriend([FromQuery] string playerId)
     {
         if (!ModelState.IsValid) return BadRequest(ModelState);
-
+ 
         var userEmail = User.GetUserEmail();
         var player = userManager.FindByEmailAsync(userEmail).Result;
         var friend = await playerRepository.GetPlayerAsync(playerId);

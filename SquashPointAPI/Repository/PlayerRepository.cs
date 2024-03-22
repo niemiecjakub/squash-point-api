@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using SquashPointAPI.Data;
 using SquashPointAPI.Interfaces;
 using SquashPointAPI.Models;
-
+    
 namespace SquashPointAPI.Repository;
 
 public class PlayerRepository(ApplicationDBContext context, UserManager<Player> userManager) : IPlayerRepository
