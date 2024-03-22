@@ -41,8 +41,9 @@ public class PlayerController(
         var player = await playerRepository.GetPlayerAsync(playerId);
         var followers = await playerRepository.GetPlayerFollowersAsync(playerId);
         var folowees = await playerRepository.GetPlayerFolloweesAsync(playerId);
-        
-        var playerDto = player.ToPlayerDetailsDto(followers, folowees);
+        var friends = await playerRepository.GetPlayerFriendsAsync(playerId);
+
+        var playerDto = player.ToPlayerDetailsDto(followers, folowees, friends);
 
         return Ok(playerDto);
     }
@@ -121,23 +122,6 @@ public class PlayerController(
         return Ok(overview);
     }
 
-    [HttpGet("{playerId}/friends")]
-    [ProducesResponseType(200, Type = typeof(IEnumerable<Player>))]
-    [ProducesResponseType(400)]
-    public async Task<IActionResult> GetPlayerFriends(string playerId)
-    {
-        if (!ModelState.IsValid) return BadRequest(ModelState);
-
-        if (!await playerRepository.PlayerExistsAsync(playerId)) return NotFound();
-
-        var friends = await playerRepository.GetPlayerFriendsAsync(playerId);
-        var friendDtos = friends.Select(p => p.ToPlayerDto()).ToList();
-
-        //TODO
-
-        return Ok(friendDtos);
-    }
-
 
     [HttpGet("{playerId}/followers")]
     [ProducesResponseType(204)]
@@ -152,7 +136,7 @@ public class PlayerController(
 
         return Ok(followersDto);
     }
-    
+
     [HttpGet("{playerId}/followees")]
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]
@@ -167,7 +151,7 @@ public class PlayerController(
         return Ok(followeesDto);
     }
 
-    
+
     [HttpPost("follow")]
     [Authorize]
     [ProducesResponseType(204)]
@@ -194,7 +178,7 @@ public class PlayerController(
 
         return BadRequest();
     }
-    
+
     [HttpDelete("unfollow")]
     [Authorize]
     [ProducesResponseType(204)]
@@ -207,7 +191,7 @@ public class PlayerController(
         var userEmail = User.GetUserEmail();
         var player = userManager.FindByEmailAsync(userEmail).Result;
         var followee = await playerRepository.GetPlayerAsync(playerId);
-        
+
         if (await playerRepository.UnollowPlayerAsync(player, followee))
         {
             return Ok("Ok");
@@ -216,28 +200,65 @@ public class PlayerController(
         return BadRequest("Failed");
     }
 
-    [HttpPost("friend")]
+    [HttpGet("{playerId}/friends")]
+    [ProducesResponseType(200, Type = typeof(IEnumerable<Player>))]
+    [ProducesResponseType(400)]
+    public async Task<IActionResult> GetPlayerFriends(string playerId)
+    {
+        if (!ModelState.IsValid) return BadRequest(ModelState);
+
+        if (!await playerRepository.PlayerExistsAsync(playerId)) return NotFound();
+
+        var friends = await playerRepository.GetPlayerFriendsAsync(playerId);
+        var friendDtos = friends.ToFriendsDto();
+
+        return Ok(friendDtos);
+    }
+
+    [HttpPost("friend/request")]
     [Authorize]
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]
-    public async Task<IActionResult> AddFriend([FromQuery] string playerId)
+    public async Task<IActionResult> RequestFriend([FromQuery] string playerId)
     {
         if (!ModelState.IsValid) return BadRequest(ModelState);
- 
+        if (!await playerRepository.PlayerExistsAsync(playerId)) return NotFound();
+
         var userEmail = User.GetUserEmail();
         var player = userManager.FindByEmailAsync(userEmail).Result;
         var friend = await playerRepository.GetPlayerAsync(playerId);
 
-        //TODO
-        return Ok();
+        var playerFriend = new PlayerFriend()
+        {
+            Player = player,
+            Friend = friend,
+            Status = 0,
+        };
+
+        if (await playerRepository.FriendRequestAsync(playerFriend))
+        {
+            return Ok("Ok");
+        }
+
+        return BadRequest();
     }
-    
+
+    [HttpPost("friend/accept")]
+    [Authorize]
+    [ProducesResponseType(204)]
+    [ProducesResponseType(400)]
+    public async Task<IActionResult> AcceptFriendRequest([FromQuery] string friendId)
+    {
+        return BadRequest();
+    }
+
+
     [HttpGet("{playerId}/social")]
     public async Task<IActionResult> SocialData(string playerId)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
-        
+
         if (!await playerRepository.PlayerExistsAsync(playerId))
         {
             return NotFound();
@@ -246,9 +267,10 @@ public class PlayerController(
         var user = await userManager.Users.FirstAsync(u => u.Id == playerId);
         var followers = await playerRepository.GetPlayerFollowersAsync(playerId);
         var followees = await playerRepository.GetPlayerFolloweesAsync(playerId);
-        
-        var playerSocialDto = user.ToPlayerSocialDto(followers, followees);
-        
+        var friends = await playerRepository.GetPlayerFriendsAsync(playerId);
+
+        var playerSocialDto = user.ToPlayerSocialDto(followers, followees, friends);
+
         return Ok(playerSocialDto);
     }
 }

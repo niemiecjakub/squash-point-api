@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System.Collections;
+using System.Diagnostics;
 using SquashPointAPI.Dto.Account;
 using SquashPointAPI.Dto.Player;
 using SquashPointAPI.Interfaces;
@@ -18,7 +19,8 @@ public static class PlayerMapper
     }
 
 
-    public static PlayerDetailsDto ToPlayerDetailsDto(this Player playerModel, ICollection<Player> followers, ICollection<Player> folowees)
+    public static PlayerDetailsDto ToPlayerDetailsDto(this Player playerModel, ICollection<Player> followers,
+        ICollection<Player> folowees, ICollection<PlayerFriend> friends)
     {
         return new PlayerDetailsDto
         {
@@ -29,7 +31,8 @@ public static class PlayerMapper
             Leagues = playerModel.PlayerLeagues.Select(pl => pl.League.ToLeagueDto()).ToList(),
             Games = playerModel.PlayerGames.Select(pg => pg.Game.ToGameDto()).ToList(),
             Followers = followers.Count(),
-            Following =  folowees.Count()
+            Following = folowees.Count(),
+            Friends = friends.Where(pf => pf.Status == 1).Count()
         };
     }
 
@@ -58,14 +61,24 @@ public static class PlayerMapper
             Token = token,
         };
     }
-    
-    public static PlayerSocialDto ToPlayerSocialDto(this Player playerModel, ICollection<Player> followers, ICollection<Player> followees)
+
+    public static PlayerSocialDto ToPlayerSocialDto(this Player playerModel, ICollection<Player> followers,
+        ICollection<Player> followees, ICollection<PlayerFriend> friends)
     {
-        
         return new PlayerSocialDto
         {
             Followers = followers.Select(p => p.ToPlayerDto()).ToList(),
             Following = followees.Select(p => p.ToPlayerDto()).ToList(),
+            Friends = friends.Where(f => f.Status == 1).Select(pf => pf.Friend.ToPlayerDto()).ToList(),
+        };
+    }
+
+    public static FriendsDto ToFriendsDto(this ICollection<PlayerFriend> friends)
+    {
+        return new FriendsDto()
+        {
+            Friends = friends.Where(f => f.Status == 1).Select(pf => pf.Friend.ToPlayerDto()).ToList(),
+            Requests = friends.Where(f => f.Status == 0).Select(pf => pf.Friend.ToPlayerDto()).ToList(),
         };
     }
 }

@@ -11,4 +11,5 @@ public class PlayerDetailsDto : PlayerDto
     public List<GameDto> Games { get; set; }
     public int Followers { get; set; }
     public int Following { get; set; }
+    public int Friends { get; set; }
 }

@@ -29,7 +29,6 @@ public class SetRepository(ApplicationDBContext context) : ISetRepository
     {
         var set = await context.Set.FirstAsync(s => s.Id == setId);
         Player setWinner = await context.Players.FirstAsync(p => p.Id.Equals(updateDto.WinnerId));
-        Console.WriteLine(setWinner.FirstName);
         set.Winner = setWinner;
         await context.SaveChangesAsync();
 

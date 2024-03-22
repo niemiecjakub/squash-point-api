@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using SquashPointAPI.Data;
 using SquashPointAPI.Interfaces;
 using SquashPointAPI.Models;
-    
+
 namespace SquashPointAPI.Repository;
 
 public class PlayerRepository(ApplicationDBContext context, UserManager<Player> userManager) : IPlayerRepository
@@ -58,9 +58,12 @@ public class PlayerRepository(ApplicationDBContext context, UserManager<Player> 
             .ToListAsync();
     }
 
-    public async Task<ICollection<Player>> GetPlayerFriendsAsync(string playerId)
+    public async Task<ICollection<PlayerFriend>> GetPlayerFriendsAsync(string playerId)
     {
-        throw new NotImplementedException();
+        return await context.PlayerFriends
+            .Where(pf => pf.PlayerId.Equals(playerId))
+            .Include(pf => pf.Friend)
+            .ToListAsync();
     }
 
     public async Task<ICollection<Player>> GetPlayerFollowersAsync(string playerId)
@@ -68,13 +71,13 @@ public class PlayerRepository(ApplicationDBContext context, UserManager<Player> 
         return await context.FollowerFollowee.Where(pf => pf.Followee.Id == playerId).Select(pf => pf.Follower)
             .ToListAsync();
     }
-    
+
     public async Task<ICollection<Player>> GetPlayerFolloweesAsync(string playerId)
     {
         return await context.FollowerFollowee.Where(pf => pf.Follower.Id == playerId).Select(pf => pf.Followee)
             .ToListAsync();
     }
-     
+
     public async Task<bool> FollowPlayerAsync(FollowerFollowee playerFollow)
     {
         await context.FollowerFollowee.AddAsync(playerFollow);
@@ -84,20 +87,30 @@ public class PlayerRepository(ApplicationDBContext context, UserManager<Player> 
 
     public async Task<bool> UnollowPlayerAsync(Player follower, Player followee)
     {
-        var followerFollowee = await context.FollowerFollowee.FirstOrDefaultAsync(ff => ff.Followee == followee && ff.Follower == follower);
+        var followerFollowee =
+            await context.FollowerFollowee.FirstOrDefaultAsync(ff =>
+                ff.Followee == followee && ff.Follower == follower);
         if (followerFollowee == null) return false;
         context.FollowerFollowee.Remove(followerFollowee);
         await context.SaveChangesAsync();
         return true;
     }
 
+
     public async Task<bool> PlayerExistsAsync(string playerId)
     {
         return await context.Players.AnyAsync(p => p.Id.Equals(playerId));
     }
-    
+
     public async Task<Player> LoginUserAsync(string email)
     {
         return await userManager.Users.Include(p => p.Following).FirstAsync(u => u.Email.ToLower() == email.ToLower());
+    }
+
+    public async Task<bool> FriendRequestAsync(PlayerFriend playerFriend)
+    {
+        await context.PlayerFriends.AddAsync(playerFriend);
+        await context.SaveChangesAsync();
+        return true;
     }
 }
