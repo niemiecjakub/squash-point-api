@@ -16,5 +16,7 @@ public interface IPlayerRepository
     Task<Player> LoginUserAsync(string email);
     Task<bool> PlayerExistsAsync(string playerId);
     Task<ICollection<PlayerFriend>> GetPlayerFriendsAsync(string playerId);
-    Task<bool> FriendRequestAsync(PlayerFriend playerFriend);
+    Task<bool> SendFriendRequestAsync(PlayerFriend playerFriend);
+    Task<bool> AcceptFriendRequestAsync(Player player, Player friend,int status);
+    Task<bool> DeleteFriendAsync(Player player, Player friend);
 }

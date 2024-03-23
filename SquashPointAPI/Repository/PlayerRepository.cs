@@ -108,9 +108,28 @@ public class PlayerRepository(ApplicationDBContext context, UserManager<Player> 
         return await userManager.Users.Include(p => p.Following).FirstAsync(u => u.Email.ToLower() == email.ToLower());
     }
 
-    public async Task<bool> FriendRequestAsync(PlayerFriend playerFriend)
+    public async Task<bool> SendFriendRequestAsync(PlayerFriend playerFriend)
     {
         await context.PlayerFriends.AddAsync(playerFriend);
+        await context.SaveChangesAsync();
+        return true;
+    }
+
+    public async Task<bool> AcceptFriendRequestAsync(Player sender, Player receiver,int status)
+    {
+        var playerFriend =
+            await context.PlayerFriends.FirstAsync(pf =>
+                pf.Player == sender && pf.Friend == receiver && pf.Status == 0);
+        playerFriend.Status = status;
+        await context.SaveChangesAsync();
+        return true;
+    }
+    public async Task<bool> DeleteFriendAsync(Player player,Player friend)
+    {
+        var playerFriend =
+            await context.PlayerFriends.FirstAsync(pf =>
+                pf.Player == player || pf.Friend == player && pf.Player == friend || pf.Friend == friend);
+        context.PlayerFriends.Remove(playerFriend);
         await context.SaveChangesAsync();
         return true;
     }

@@ -235,7 +235,7 @@ public class PlayerController(
             Status = 0,
         };
 
-        if (await playerRepository.FriendRequestAsync(playerFriend))
+        if (await playerRepository.SendFriendRequestAsync(playerFriend))
         {
             return Ok("Ok");
         }
@@ -247,8 +247,41 @@ public class PlayerController(
     [Authorize]
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]
-    public async Task<IActionResult> AcceptFriendRequest([FromQuery] string friendId)
+    public async Task<IActionResult> AcceptFriendRequest([FromQuery] string playerId)
     {
+        if (!ModelState.IsValid) return BadRequest(ModelState);
+        if (!await playerRepository.PlayerExistsAsync(playerId)) return NotFound();
+
+        var userEmail = User.GetUserEmail();
+        var player = userManager.FindByEmailAsync(userEmail).Result; //the one who accepts
+        var friend = await playerRepository.GetPlayerAsync(playerId); //the one who sent
+
+        if (await playerRepository.AcceptFriendRequestAsync(friend, player, 1))
+        {
+            return Ok("Ok");
+        }
+
+        return BadRequest();
+    }
+
+    [HttpDelete("friend/delete")]
+    [Authorize]
+    [ProducesResponseType(204)]
+    [ProducesResponseType(400)]
+    public async Task<IActionResult> DeleteFriendRequest([FromQuery] string playerId)
+    {
+        if (!ModelState.IsValid) return BadRequest(ModelState);
+        if (!await playerRepository.PlayerExistsAsync(playerId)) return NotFound();
+
+        var userEmail = User.GetUserEmail();
+        var player = userManager.FindByEmailAsync(userEmail).Result;
+        var friend = await playerRepository.GetPlayerAsync(playerId);
+
+        if (await playerRepository.DeleteFriendAsync(friend, player))
+        {
+            return Ok("Ok");
+        }
+
         return BadRequest();
     }
 

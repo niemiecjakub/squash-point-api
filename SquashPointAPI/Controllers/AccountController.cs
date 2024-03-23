@@ -25,14 +25,7 @@ public class AccountController(
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var user = new Player
-            {
-                UserName = registerDto.Email,
-                Email = registerDto.Email,
-                FirstName = registerDto.FirstName,
-                LastName = registerDto.LastName,
-                Sex = registerDto.Sex
-            };
+            var user = registerDto.ToPlayer();
 
             var createdUser = await userManager.CreateAsync(user, registerDto.Password);
 
@@ -55,7 +48,7 @@ public class AccountController(
             return StatusCode(500, e);
         }
     }
-
+    
     [HttpPost("login")]
     public async Task<IActionResult> Login(LoginDto loginDto)
     {

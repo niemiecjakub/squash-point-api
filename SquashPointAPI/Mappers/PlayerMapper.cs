@@ -69,9 +69,9 @@ public static class PlayerMapper
         {
             Followers = followers.Select(p => p.ToPlayerDto()).ToList(),
             Following = followees.Select(p => p.ToPlayerDto()).ToList(),
-            Friends = friends.Where(pf => pf.Status.Equals(1)).Select(pf => pf.Friend.ToPlayerDto()).ToList(),
+            Friends = friends.Where(pf => pf.Status.Equals(1)).Select(pf => pf.Friend == playerModel ? pf.Player.ToPlayerDto() : pf.Friend.ToPlayerDto()).ToList(),
             SentFriendRequests = friends.Where(pf => pf.Status.Equals(0) && pf.Player == playerModel).Select(pf => pf.Friend.ToPlayerDto()).ToList(),
-            ReceivedFriendRequests = friends.Where(pf => pf.Status.Equals(0) && pf.Player != playerModel).Select(pf => pf.Friend.ToPlayerDto()).ToList(),
+            ReceivedFriendRequests = friends.Where(pf => pf.Status.Equals(0) && pf.Player != playerModel).Select(pf => pf.Player.ToPlayerDto()).ToList(),
             
         };
     }
