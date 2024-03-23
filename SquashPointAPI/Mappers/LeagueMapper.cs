@@ -13,6 +13,9 @@ public static class LeagueMapper
             Name = leagueModel.Name,
             Owner = $"{leagueModel.Owner.FirstName} {leagueModel.Owner.LastName}",
             PlayerCount = leagueModel.PlayerLeagues.Select(pl => pl.Player.ToLeaguePlayerDto()).Count(),
+            Description = leagueModel.Description,
+            Public = leagueModel.Public,
+            MaxPlayers = leagueModel.MaxPlayers
         };
     }
 
@@ -26,16 +29,22 @@ public static class LeagueMapper
             PlayerCount = leagueModel.PlayerLeagues.Select(pl => pl.Player.ToLeaguePlayerDto()).Count(),
             Players = leagueModel.PlayerLeagues.Select(pl => pl.Player.ToLeaguePlayerDto())
                 .OrderByDescending(p => p.Score).ToList(),
-            Games = leagueModel.Games.Select(g => g.ToGameDto()).OrderByDescending(g => g.Date).ToList()
+            Games = leagueModel.Games.Select(g => g.ToGameDto()).OrderByDescending(g => g.Date).ToList(),
+            Description = leagueModel.Description,
+            Public = leagueModel.Public,
+            MaxPlayers = leagueModel.MaxPlayers
         };
     }
 
-    public static League ToLeagueFromCreateDTO(this CreateLeagueDto leagueDto, Player owner)
+    public static League ToLeagueFromCreateDTO(this CreateLeagueDto createLeagueDto, Player owner)
     {
         return new League
         {
-            Name = leagueDto.Name,
-            Owner = owner
+            Name = createLeagueDto.Name,
+            Owner = owner,
+            Description = createLeagueDto.Description,
+            MaxPlayers = createLeagueDto.MaxPlayers,
+            Public = createLeagueDto.Public
         };
     }
 }

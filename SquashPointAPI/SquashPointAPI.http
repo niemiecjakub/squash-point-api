@@ -1,6 +1,0 @@
-@SquashPointAPI_HostAddress = http://localhost:5110
-
-GET {{SquashPointAPI_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###
