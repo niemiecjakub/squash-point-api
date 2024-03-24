@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SquashPointAPI.Data;
 
@@ -11,9 +12,11 @@ using SquashPointAPI.Data;
 namespace SquashPointAPI.Migrations
 {
     [DbContext(typeof(ApplicationDBContext))]
-    partial class ApplicationDBContextModelSnapshot : ModelSnapshot
+    [Migration("20240324200001_images")]
+    partial class images
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -51,13 +54,13 @@ namespace SquashPointAPI.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "c8793307-4ce0-4454-bd5a-759b2b54e843",
+                            Id = "48384dc4-76f1-4dbe-a71c-31363e0fe500",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
-                            Id = "a307689c-b61b-46a8-a735-39c525ac3fc0",
+                            Id = "7e11ea54-bf30-40c2-bb8e-681d6617507a",
                             Name = "User",
                             NormalizedName = "USER"
                         });
@@ -223,10 +226,6 @@ namespace SquashPointAPI.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("FileExtension")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<byte[]>("ImageData")
                         .IsRequired()

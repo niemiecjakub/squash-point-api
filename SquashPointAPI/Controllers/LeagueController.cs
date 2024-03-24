@@ -15,8 +15,10 @@ namespace SquashPointAPI.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Produces("application/json")]
-public class LeagueController(ILeagueRepository leagueRepository, UserManager<Player> userManager) : Controller
+public class LeagueController(
+    ILeagueRepository leagueRepository,
+    UserManager<Player> userManager,
+    IWebHostEnvironment webHostEnvironment) : Controller
 {
     /// <summary>
     /// Get list of all leagues 
@@ -155,7 +157,7 @@ public class LeagueController(ILeagueRepository leagueRepository, UserManager<Pl
     [ProducesResponseType(401)]
     [ProducesResponseType(404)]
     [ProducesResponseType(422)]
-    public async Task<IActionResult> JoinLeague([FromQuery][Required]int leagueId)
+    public async Task<IActionResult> JoinLeague([FromQuery] [Required] int leagueId)
     {
         var userEmail = User.GetUserEmail();
         var player = userManager.FindByEmailAsync(userEmail).Result;
@@ -198,7 +200,7 @@ public class LeagueController(ILeagueRepository leagueRepository, UserManager<Pl
     [ProducesResponseType(400)]
     [ProducesResponseType(401)]
     [ProducesResponseType(404)]
-    public async Task<IActionResult> LeaveLeague([FromQuery][Required]int leagueId)
+    public async Task<IActionResult> LeaveLeague([FromQuery] [Required] int leagueId)
     {
         var userEmail = User.GetUserEmail();
         var player = userManager.FindByEmailAsync(userEmail).Result;
@@ -226,7 +228,7 @@ public class LeagueController(ILeagueRepository leagueRepository, UserManager<Pl
     [ProducesResponseType(400)]
     [ProducesResponseType(401)]
     [ProducesResponseType(404)]
-    public async Task<IActionResult> DeleteLeague([FromQuery][Required]int leagueId)
+    public async Task<IActionResult> DeleteLeague([FromQuery] [Required] int leagueId)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
@@ -236,5 +238,63 @@ public class LeagueController(ILeagueRepository leagueRepository, UserManager<Pl
         if (league == null) return NotFound("League not found");
 
         return Ok();
+    }
+
+
+    // [HttpPost("photo")]
+    // public async Task<IActionResult> UploadLeaguePhoto([FromBody][Required] IFormFile photo)
+    // {
+    //     if (!ModelState.IsValid)
+    //         return BadRequest(ModelState);
+    //
+    //     string folder = "Resource/League";
+    //     folder += photo.FileName + Guid.NewGuid().ToString();
+    //     string serverFolder = Path.Combine(webHostEnvironment.WebRootPath, folder);
+    //
+    //     await photo.CopyToAsync(new FileStream(serverFolder, FileMode.Create));
+    //     
+    //     return Ok();
+    // }
+
+    [HttpPost("photo")]
+    public async Task<IActionResult> UploadImage(IFormFile imageFile)
+    {
+        if (imageFile == null || imageFile.Length == 0)
+        {
+            return BadRequest("Invalid file.");
+        }
+
+        using (MemoryStream memoryStream = new MemoryStream())
+        {
+            try
+            {
+                await imageFile.CopyToAsync(memoryStream);
+                var image = new Image
+                {
+                    ImageData = memoryStream.ToArray(),
+                    FileExtension = Path.GetExtension(imageFile.FileName),
+                };
+                await leagueRepository.UploadLeaguePhoto(image);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "An error occurred while uploading the image.");
+            }
+        }
+    }
+
+    [HttpGet("photo")]
+    public async Task<IActionResult> GetPhotos(int photoId)
+    {
+        try
+        {
+            var image = await leagueRepository.GetPhotoById(photoId);
+            return Ok(image.ImageData);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, "An error occurred while retrieving images.");
+        }
     }
 }

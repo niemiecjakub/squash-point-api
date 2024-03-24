@@ -105,4 +105,15 @@ internal class LeagueRepository(ApplicationDBContext context) : ILeagueRepositor
         await context.SaveChangesAsync();
         return league;
     }
+
+    public async Task UploadLeaguePhoto(Image image)
+    {
+        await context.Images.AddAsync(image);
+        await context.SaveChangesAsync();
+    }
+
+    public async Task<Image> GetPhotoById(int photoId)
+    {
+        return await context.Images.FirstAsync(p => p.Id == photoId);
+    }
 }

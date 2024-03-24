@@ -15,4 +15,6 @@ public interface ILeagueRepository
     Task<bool> IsPlayerInLeagueAsync(int leagueId, string playerId);
     Task<PlayerLeague?> RemovePlayerAsync(int leagueId, string playerId);
     Task<League?> DeleteAsync(int leagueId);
+    Task UploadLeaguePhoto(Image image);
+    Task<Image> GetPhotoById(int photoId);
 }

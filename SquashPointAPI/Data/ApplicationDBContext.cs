@@ -16,6 +16,7 @@ public class ApplicationDBContext : IdentityDbContext<Player>
     public DbSet<Game> Games { get; set; }
     public DbSet<Set> Set { get; set; }
     public DbSet<Point> Point { get; set; }
+    public DbSet<Image> Images { get; set; }
     public DbSet<PlayerLeague> PlayerLeagues { get; set; }
     public DbSet<PlayerGame> PlayerGames { get; set; }
     public DbSet<PlayerFriend> PlayerFriends { get; set; }
