@@ -27,7 +27,16 @@ public class ApplicationDBContext : IdentityDbContext<Player>
     {
         base.OnModelCreating(builder);
 
+        builder.Entity<Player>()
+            .HasOne(p => p.Photo)
+            .WithMany()
+            .HasForeignKey(p => p.PhotoId);
 
+        builder.Entity<League>()
+            .HasOne(l => l.Photo)
+            .WithMany()
+            .HasForeignKey(l => l.PhotoId);
+        
         builder.Entity<PlayerLeague>(x => { x.HasKey(pl => new { pl.PlayerId, pl.LeagueId }); });
 
         builder.Entity<PlayerLeague>()
@@ -60,13 +69,13 @@ public class ApplicationDBContext : IdentityDbContext<Player>
             b.HasOne(e => e.Friend).WithMany().OnDelete(DeleteBehavior.ClientSetNull);
         });
         
-        
         builder.Entity<FollowerFollowee>(b =>
         {
             b.HasKey(e => new { e.FollowerId, e.FolloweeId });
             b.HasOne(e => e.Follower).WithMany(e => e.Following);
             b.HasOne(e => e.Followee).WithMany().OnDelete(DeleteBehavior.ClientSetNull);
         });
+        
 
         List<IdentityRole> roles = new List<IdentityRole>
         {

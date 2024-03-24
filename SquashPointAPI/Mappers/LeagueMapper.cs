@@ -32,7 +32,7 @@ public static class LeagueMapper
             Games = leagueModel.Games.Select(g => g.ToGameDto()).OrderByDescending(g => g.Date).ToList(),
             Description = leagueModel.Description,
             Public = leagueModel.Public,
-            MaxPlayers = leagueModel.MaxPlayers
+            MaxPlayers = leagueModel.MaxPlayers,
         };
     }
 

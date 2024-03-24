@@ -239,22 +239,7 @@ public class LeagueController(
 
         return Ok();
     }
-
-
-    // [HttpPost("photo")]
-    // public async Task<IActionResult> UploadLeaguePhoto([FromBody][Required] IFormFile photo)
-    // {
-    //     if (!ModelState.IsValid)
-    //         return BadRequest(ModelState);
-    //
-    //     string folder = "Resource/League";
-    //     folder += photo.FileName + Guid.NewGuid().ToString();
-    //     string serverFolder = Path.Combine(webHostEnvironment.WebRootPath, folder);
-    //
-    //     await photo.CopyToAsync(new FileStream(serverFolder, FileMode.Create));
-    //     
-    //     return Ok();
-    // }
+    
 
     [HttpPost("photo")]
     public async Task<IActionResult> UploadImage(IFormFile imageFile)

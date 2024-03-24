@@ -9,6 +9,7 @@ public class League
     public int MaxPlayers { get; set; }
     public bool Public { get; set; }
     public Image Photo { get; set; }
+    public int? PhotoId { get; set; }
     public ICollection<PlayerLeague> PlayerLeagues { get; set; }
     public ICollection<Game> Games { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
