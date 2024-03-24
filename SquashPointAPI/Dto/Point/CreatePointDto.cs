@@ -1,8 +1,13 @@
-﻿namespace SquashPointAPI.Dto.Point;
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace SquashPointAPI.Dto.Point;
 
 public class CreatePointDto
 {
-    public string WinnerId { get; set; }
-    public string PointType { get; set; }
+    [Required]
     public int SetId { get; set; }
+    [Required]
+    public string WinnerId { get; set; }
+    [Required]
+    public string PointType { get; set; }
 }

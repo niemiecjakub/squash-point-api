@@ -1,7 +1,10 @@
-﻿namespace SquashPointAPI.Dto.Set;
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace SquashPointAPI.Dto.Set;
 
 public class CreateSetDto
 {
-    public string? WinnerId { get; set; }
+    [Required]
     public int GameId { get; set; }
+    public string? WinnerId { get; set; }
 }

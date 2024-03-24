@@ -1,29 +1,40 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SquashPointAPI.Dto.Set;
 using SquashPointAPI.Interfaces;
 using SquashPointAPI.Mappers;
-using SquashPointAPI.Models;
 
 namespace SquashPointAPI.Controllers;
 
-[Route("api/[controller]")]
 [ApiController]
+[Route("api/[controller]")]
+[Produces("application/json")]
 public class SetController(
     ISetRepository setRepository,
     IGameRepository gameRepository,
     IPlayerRepository playerRepository) : Controller
 {
+    /// <summary>
+    /// Create new set 
+    /// </summary>
+    /// <param name="setCreate"></param>
+    /// <returns></returns>
+    /// <response code="200">OK</response>
+    /// <response code="400">Bad request</response>
+    /// <response code="401">Unauthorized</response>
+    /// <response code="404">Game with given ID not found</response>
     [HttpPost]
     [Authorize]
-    [ProducesResponseType(204)]
+    [ProducesResponseType(200, Type = typeof(SetDto))]
     [ProducesResponseType(400)]
+    [ProducesResponseType(401)]
+    [ProducesResponseType(404)]
     public async Task<IActionResult> CreateSet([FromQuery] CreateSetDto setCreate)
     {
         if (!ModelState.IsValid) return BadRequest(ModelState);
 
         if (!await gameRepository.GameExistsAsync(setCreate.GameId)) return NotFound();
-
 
         var game = await gameRepository.GetGameByIdAsync(setCreate.GameId);
         var winner = await playerRepository.GetPlayerAsync(setCreate.WinnerId);
@@ -35,10 +46,25 @@ public class SetController(
         return Ok(setDto);
     }
 
+    /// <summary>
+    /// Update set winner
+    /// </summary>
+    /// <param name="setId"></param>
+    /// <param name="updateDto"></param>
+    /// <returns></returns>
+    /// <response code="200">OK</response>
+    /// <response code="400">Bad request</response>
+    /// <response code="401">Unauthorized</response>
+    /// <response code="404">Set with given ID not found</response>
     [HttpPut]
     [Authorize]
     [Route("{setId:int}")]
-    public async Task<IActionResult> UpdateSet([FromRoute] int setId, [FromBody] UpdateSetRequestDto updateDto)
+    [ProducesResponseType(200, Type = typeof(SetDto))]
+    [ProducesResponseType(400)]
+    [ProducesResponseType(401)]
+    [ProducesResponseType(404)]
+    public async Task<IActionResult> UpdateSet([FromRoute] [Required] int setId,
+        [FromBody] UpdateSetRequestDto updateDto)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
@@ -50,9 +76,20 @@ public class SetController(
         return Ok(setDto);
     }
 
+    /// <summary>
+    /// Get detailed set summary 
+    /// </summary>
+    /// <param name="setId"></param>
+    /// <returns></returns>
+    /// <response code="200">OK</response>
+    /// <response code="400">Bad request</response>
+    /// <response code="404">Set with given ID not found</response>
     [HttpGet]
     [Route("{setId:int}")]
-    public async Task<IActionResult> GetSetSummaryById([FromRoute] int setId)
+    [ProducesResponseType(200)]
+    [ProducesResponseType(400)]
+    [ProducesResponseType(404)]
+    public async Task<IActionResult> GetSetSummaryById([FromRoute] [Required] int setId)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
@@ -63,7 +100,6 @@ public class SetController(
         var set = await setRepository.GetSetAsync(setId);
         var players = game.ToGameDto().Players.ToList();
 
-        Console.WriteLine(players[0].FullName);
         var setSummary = new
         {
             Id = set.Id,

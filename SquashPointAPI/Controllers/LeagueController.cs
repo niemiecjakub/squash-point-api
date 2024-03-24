@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using SquashPointAPI.Dto.Game;
@@ -12,12 +13,19 @@ using SquashPointAPI.Models;
 
 namespace SquashPointAPI.Controllers;
 
-[Route("api/[controller]")]
 [ApiController]
+[Route("api/[controller]")]
+[Produces("application/json")]
 public class LeagueController(ILeagueRepository leagueRepository, UserManager<Player> userManager) : Controller
 {
+    /// <summary>
+    /// Get list of all leagues 
+    /// </summary>
+    /// <response code="200">OK</response>
+    /// <response code="400">Bad request</response>
     [HttpGet("all")]
     [ProducesResponseType(200, Type = typeof(IEnumerable<LeagueDto>))]
+    [ProducesResponseType(400)]
     public async Task<IActionResult> GetLeagues()
     {
         var leagues = await leagueRepository.GetLeaguesAsync();
@@ -28,6 +36,11 @@ public class LeagueController(ILeagueRepository leagueRepository, UserManager<Pl
         return Ok(leagueDtos);
     }
 
+    /// <summary>
+    /// Get specific league details
+    /// </summary>
+    /// <response code="200">OK</response>
+    /// <response code="400">Bad request</response>
     [HttpGet("{leagueId}")]
     [ProducesResponseType(200, Type = typeof(LeagueDetailsDto))]
     [ProducesResponseType(400)]
@@ -45,9 +58,16 @@ public class LeagueController(ILeagueRepository leagueRepository, UserManager<Pl
     }
 
 
+    /// <summary>
+    /// Get all players enrolled for specific league
+    /// </summary>
+    /// <response code="200">OK</response>
+    /// <response code="400">Bad request</response>
+    /// <response code="404">League not found</response>
     [HttpGet("{leagueId}/players")]
     [ProducesResponseType(200, Type = typeof(IEnumerable<LeaguePlayerDto>))]
     [ProducesResponseType(400)]
+    [ProducesResponseType(404)]
     public async Task<IActionResult> GetLeaguePlayers(int leagueId)
     {
         if (!ModelState.IsValid) return BadRequest(ModelState);
@@ -61,9 +81,16 @@ public class LeagueController(ILeagueRepository leagueRepository, UserManager<Pl
         return Ok(leaguePlayerDtos);
     }
 
+    /// <summary>
+    /// Get all games in specific league
+    /// </summary>
+    /// <response code="200">OK</response>
+    /// <response code="400">Bad request</response>
+    /// <response code="404">League not found</response>
     [HttpGet("{leagueId}/games")]
     [ProducesResponseType(200, Type = typeof(IEnumerable<GameDto>))]
     [ProducesResponseType(400)]
+    [ProducesResponseType(404)]
     public async Task<IActionResult> GetAllLeagueGames(int leagueId, [FromQuery] GameQueryObject gameQuery)
     {
         if (!ModelState.IsValid) return BadRequest(ModelState);
@@ -76,42 +103,59 @@ public class LeagueController(ILeagueRepository leagueRepository, UserManager<Pl
         return Ok(leagueGamesDto);
     }
 
+
+    /// <summary>
+    /// Create new league
+    /// </summary>
+    /// <response code="201">League created</response>
+    /// <response code="400">Bad request</response>
+    /// <response code="401">Unauthorized</response>
+    /// <response code="422">League with given name already exists</response>
     [HttpPost]
     [Authorize]
-    [ProducesResponseType(200, Type = typeof(LeagueDto))]
-    [ProducesResponseType(204)]
+    [ProducesResponseType(201)]
     [ProducesResponseType(400)]
+    [ProducesResponseType(401)]
+    [ProducesResponseType(422)]
     public async Task<IActionResult> CreateLeague([FromQuery] CreateLeagueDto leagueCreate)
     {
-        if (leagueCreate == null)
-            return BadRequest(ModelState);
-
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
         var leagues = await leagueRepository.GetLeaguesAsync();
         var existingLeague =
-            leagues.FirstOrDefault(c => c.Name.Trim().ToUpper() == leagueCreate.Name.TrimEnd().ToUpper());
+            leagues.FirstOrDefault(c => c.Name.Trim().ToUpper().Equals(leagueCreate.Name.TrimEnd().ToUpper()));
 
         if (existingLeague != null)
         {
             ModelState.AddModelError("", "League already exists");
             return StatusCode(422, ModelState);
         }
+
         var userEmail = User.GetUserEmail();
         var owner = userManager.FindByEmailAsync(userEmail).Result;
         var league = leagueCreate.ToLeagueFromCreateDTO(owner);
         await leagueRepository.CreateLeagueAsync(league);
 
-        return Ok("created");
+        return Created();
     }
 
+    /// <summary>
+    /// Join league
+    /// </summary>
+    /// <response code="200">OK</response>
+    /// <response code="400">Bad request</response>
+    /// <response code="401">Unauthorized</response>
+    /// <response code="404">League not found</response>
+    /// <response code="422">User is already in this league</response>
     [HttpPost("join")]
     [Authorize]
-    [ProducesResponseType(200, Type = typeof(PlayerLeague))]
-    [ProducesResponseType(204)]
+    [ProducesResponseType(200)]
     [ProducesResponseType(400)]
-    public async Task<IActionResult> JoinLeague([FromQuery] int leagueId)
+    [ProducesResponseType(401)]
+    [ProducesResponseType(404)]
+    [ProducesResponseType(422)]
+    public async Task<IActionResult> JoinLeague([FromQuery][Required]int leagueId)
     {
         var userEmail = User.GetUserEmail();
         var player = userManager.FindByEmailAsync(userEmail).Result;
@@ -120,7 +164,7 @@ public class LeagueController(ILeagueRepository leagueRepository, UserManager<Pl
 
         if (!await leagueRepository.LeagueExistsAsync(leagueId))
         {
-            return BadRequest("League doesnt exist");
+            return NotFound("League doesnt exist");
         }
 
         if (await leagueRepository.IsPlayerInLeagueAsync(leagueId, player.Id))
@@ -137,12 +181,24 @@ public class LeagueController(ILeagueRepository leagueRepository, UserManager<Pl
         };
         await leagueRepository.AddPlayerToLeagueAsync(playerLeague);
 
-        return Created();
+        return Ok();
     }
 
-    [HttpPost("leave")]
+
+    /// <summary>
+    /// Leave league
+    /// </summary>
+    /// <response code="200">OK</response>
+    /// <response code="400">Bad request</response>
+    /// <response code="401">Unauthorized</response>
+    /// <response code="404">League not found</response>
+    [HttpDelete("leave")]
     [Authorize]
-    public async Task<IActionResult> LeaveLeague([FromQuery] int leagueId)
+    [ProducesResponseType(200)]
+    [ProducesResponseType(400)]
+    [ProducesResponseType(401)]
+    [ProducesResponseType(404)]
+    public async Task<IActionResult> LeaveLeague([FromQuery][Required]int leagueId)
     {
         var userEmail = User.GetUserEmail();
         var player = userManager.FindByEmailAsync(userEmail).Result;
@@ -152,14 +208,25 @@ public class LeagueController(ILeagueRepository leagueRepository, UserManager<Pl
 
         var playerLeague = await leagueRepository.RemovePlayerAsync(leagueId, player.Id);
 
-        if (playerLeague == null) return NotFound("This player isnt part of this league");
+        if (playerLeague == null) return NotFound("This player isn't part of this league");
 
-        return Ok("Player removed");
+        return Ok();
     }
 
+    /// <summary>
+    /// Delete league
+    /// </summary>
+    /// <response code="200">OK</response>
+    /// <response code="400">Bad request</response>
+    /// <response code="401">Unauthorized</response>
+    /// <response code="404">League not found</response>
     [HttpDelete]
     [Authorize]
-    public async Task<IActionResult> DeleteLeague([FromQuery] int leagueId)
+    [ProducesResponseType(200)]
+    [ProducesResponseType(400)]
+    [ProducesResponseType(401)]
+    [ProducesResponseType(404)]
+    public async Task<IActionResult> DeleteLeague([FromQuery][Required]int leagueId)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
@@ -168,6 +235,6 @@ public class LeagueController(ILeagueRepository leagueRepository, UserManager<Pl
 
         if (league == null) return NotFound("League not found");
 
-        return Ok("League removed");
+        return Ok();
     }
 }
