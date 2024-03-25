@@ -7,4 +7,5 @@ public class LeagueDetailsDto : LeagueDto
 {
     public List<LeaguePlayerDto> Players { get; set; }
     public List<GameDto> Games { get; set; }
+    public byte[]? Photo { get; set; }
 }

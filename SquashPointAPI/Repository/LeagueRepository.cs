@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SquashPointAPI.Data;
+using SquashPointAPI.Dto.League;
 using SquashPointAPI.Helpers;
 using SquashPointAPI.Interfaces;
 using SquashPointAPI.Models;
@@ -22,6 +23,7 @@ internal class LeagueRepository(ApplicationDBContext context) : ILeagueRepositor
     public async Task<League> GetLeagueByIdAsync(int leagueId)
     {
         return await context.Leagues
+            .Include(l => l.Photo)
             .Include(l => l.Owner)
             .Include(l => l.Games.Where(g => g.League.Id == leagueId))
             .ThenInclude(g => g.PlayerGames)
@@ -29,7 +31,7 @@ internal class LeagueRepository(ApplicationDBContext context) : ILeagueRepositor
             .Include(p => p.PlayerLeagues)
             .ThenInclude(pl => pl.Player)
             .ThenInclude(p => p.PlayerGames.Where(pg => pg.Game.League.Id == leagueId))
-            .FirstAsync(l => l.Id == leagueId);
+            .FirstOrDefaultAsync(l => l.Id == leagueId);
     }
 
     public async Task<ICollection<Player>> GetLeaguePlayersAsync(int leagueId)
@@ -106,14 +108,23 @@ internal class LeagueRepository(ApplicationDBContext context) : ILeagueRepositor
         return league;
     }
 
-    public async Task UploadLeaguePhoto(Image image)
+    public async Task<League> UpdateLeague(int leagueId, UpdateLeagueDto updateLeagueDto)
     {
-        await context.Images.AddAsync(image);
+        var league = await context.Leagues.FirstOrDefaultAsync(l => l.Id == leagueId);
+        league.Name = updateLeagueDto.Name;
+        league.Description = updateLeagueDto.Description;
+        league.Public = updateLeagueDto.Public;
+        league.MaxPlayers = updateLeagueDto.MaxPlayers;
+
         await context.SaveChangesAsync();
+        return league;
     }
 
-    public async Task<Image> GetPhotoById(int photoId)
+    public async Task<League> UpdateLeaguePhoto(int leagueId, Image image)
     {
-        return await context.Images.FirstAsync(p => p.Id == photoId);
+        var league = await context.Leagues.FirstOrDefaultAsync(l => l.Id == leagueId);
+        league.Photo = image;
+        await context.SaveChangesAsync();
+        return league;
     }
 }

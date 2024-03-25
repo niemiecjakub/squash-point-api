@@ -1,4 +1,5 @@
-﻿using SquashPointAPI.Helpers;
+﻿using SquashPointAPI.Dto.League;
+using SquashPointAPI.Helpers;
 using SquashPointAPI.Models;
 
 namespace SquashPointAPI.Interfaces;
@@ -15,6 +16,6 @@ public interface ILeagueRepository
     Task<bool> IsPlayerInLeagueAsync(int leagueId, string playerId);
     Task<PlayerLeague?> RemovePlayerAsync(int leagueId, string playerId);
     Task<League?> DeleteAsync(int leagueId);
-    Task UploadLeaguePhoto(Image image);
-    Task<Image> GetPhotoById(int photoId);
+    Task<League> UpdateLeague(int leagueId,UpdateLeagueDto updateLeagueDto);
+    Task<League> UpdateLeaguePhoto(int leagueId, Image image);
 }

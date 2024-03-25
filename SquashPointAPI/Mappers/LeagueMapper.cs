@@ -1,4 +1,5 @@
 ﻿using SquashPointAPI.Dto.League;
+using SquashPointAPI.Migrations;
 using SquashPointAPI.Models;
 
 namespace SquashPointAPI.Mappers;
@@ -25,14 +26,15 @@ public static class LeagueMapper
         {
             Id = leagueModel.Id,
             Name = leagueModel.Name,
+            Description = leagueModel.Description,
+            Public = leagueModel.Public,
             Owner = $"{leagueModel.Owner.FirstName} {leagueModel.Owner.LastName}",
+            MaxPlayers = leagueModel.MaxPlayers,
             PlayerCount = leagueModel.PlayerLeagues.Select(pl => pl.Player.ToLeaguePlayerDto()).Count(),
             Players = leagueModel.PlayerLeagues.Select(pl => pl.Player.ToLeaguePlayerDto())
                 .OrderByDescending(p => p.Score).ToList(),
             Games = leagueModel.Games.Select(g => g.ToGameDto()).OrderByDescending(g => g.Date).ToList(),
-            Description = leagueModel.Description,
-            Public = leagueModel.Public,
-            MaxPlayers = leagueModel.MaxPlayers,
+            Photo = leagueModel.Photo == null ? null : leagueModel.Photo.ImageData
         };
     }
 

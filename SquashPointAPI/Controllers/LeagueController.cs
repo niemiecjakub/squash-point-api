@@ -17,8 +17,8 @@ namespace SquashPointAPI.Controllers;
 [Route("api/[controller]")]
 public class LeagueController(
     ILeagueRepository leagueRepository,
-    UserManager<Player> userManager,
-    IWebHostEnvironment webHostEnvironment) : Controller
+    IImageRepository imageRepository,
+    UserManager<Player> userManager) : Controller
 {
     /// <summary>
     /// Get list of all leagues 
@@ -239,47 +239,35 @@ public class LeagueController(
 
         return Ok();
     }
-    
 
-    [HttpPost("photo")]
-    public async Task<IActionResult> UploadImage(IFormFile imageFile)
+    /// <summary>
+    /// Update league info
+    /// </summary>
+    /// <response code="200">OK</response>
+    /// <response code="400">Bad request</response>
+    /// <response code="401">Unauthorized</response>
+    /// <response code="404">League not found</response>
+    [HttpPut("{leagueId:int}")]
+    [ProducesResponseType(200)]
+    [ProducesResponseType(400)]
+    [ProducesResponseType(401)]
+    [ProducesResponseType(404)]
+    public async Task<IActionResult> UpdateLeague([FromRoute] int leagueId, [FromQuery] UpdateLeagueDto updateLeagueDto,
+        IFormFile? imageFile)
     {
-        if (imageFile == null || imageFile.Length == 0)
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+        if (!await leagueRepository.LeagueExistsAsync(leagueId))
         {
-            return BadRequest("Invalid file.");
+            return NotFound("League not found");
         }
-
-        using (MemoryStream memoryStream = new MemoryStream())
+        if (imageFile != null)
         {
-            try
-            {
-                await imageFile.CopyToAsync(memoryStream);
-                var image = new Image
-                {
-                    ImageData = memoryStream.ToArray(),
-                    FileExtension = Path.GetExtension(imageFile.FileName),
-                };
-                await leagueRepository.UploadLeaguePhoto(image);
-                return Ok();
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, "An error occurred while uploading the image.");
-            }
+            var image = await imageFile.ToImage();
+            await imageRepository.UploadImage(image);
+            await leagueRepository.UpdateLeaguePhoto(leagueId, image);
         }
-    }
-
-    [HttpGet("photo")]
-    public async Task<IActionResult> GetPhotos(int photoId)
-    {
-        try
-        {
-            var image = await leagueRepository.GetPhotoById(photoId);
-            return Ok(image.ImageData);
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, "An error occurred while retrieving images.");
-        }
+        await leagueRepository.UpdateLeague(leagueId, updateLeagueDto);
+        return Ok();
     }
 }

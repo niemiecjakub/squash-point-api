@@ -101,9 +101,8 @@ public class GameController(
         return Ok(gameDto);
     }
 
-    [HttpPut]
+    [HttpPut("{gameId:int}")]
     [Authorize]
-    [Route("{gameId:int}")]
     public async Task<IActionResult> UpdateGame([FromRoute] int gameId, [FromBody] UpdateGameRequestDto updateDto)
     {
         if (!ModelState.IsValid)
@@ -111,14 +110,13 @@ public class GameController(
 
         var game = await gameRepository.UpdateAsync(gameId, updateDto);
 
-        if (game == null) return NotFound("Comment not found");
+        if (game == null) return NotFound("Game not found");
 
         return Ok(game.ToGameDto());
     }
 
-    [HttpDelete]
+    [HttpDelete("{gameId:int}")]
     [Authorize]
-    [Route("{gameId:int}")]
     public async Task<IActionResult> DeleteGame([FromRoute] int gameId)
     {
         if (!ModelState.IsValid)
@@ -126,7 +124,7 @@ public class GameController(
 
         var game = await gameRepository.DeleteAsync(gameId);
 
-        if (game == null) return NotFound("Game doesn't exist");
+        if (game == null) return NotFound("Game not found");
 
         return Ok(game);
     }
