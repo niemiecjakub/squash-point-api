@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -16,6 +17,7 @@ namespace SquashPointAPI.Controllers;
 [ApiController]
 public class PlayerController(
     IPlayerRepository playerRepository,
+    IImageRepository imageRepository,
     UserManager<Player> userManager) : Controller
 {
     [HttpGet("all")]
@@ -305,5 +307,27 @@ public class PlayerController(
         var playerSocialDto = user.ToPlayerSocialDto(followers, followees, friends);
 
         return Ok(playerSocialDto);
+    }
+
+
+    [HttpPost("{playerId}/photo")]
+    public async Task<IActionResult> UploadPhoto([FromRoute] string playerId, [Required] IFormFile imageFile)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
+        if (!await playerRepository.PlayerExistsAsync(playerId))
+        {
+            return NotFound();
+        }
+
+
+        // var userEmail = User.GetUserEmail();
+        // var user = userManager.FindByEmailAsync(userEmail).Result;
+
+        var image = await imageFile.ToImage();
+        await imageRepository.UploadImage(image);
+        await playerRepository.UpdatePlayerPhoto(playerId, image);
+        return Ok();
     }
 }

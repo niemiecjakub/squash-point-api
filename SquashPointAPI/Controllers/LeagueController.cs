@@ -15,6 +15,7 @@ namespace SquashPointAPI.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Produces("application/json")]
 public class LeagueController(
     ILeagueRepository leagueRepository,
     IImageRepository imageRepository,
@@ -241,13 +242,13 @@ public class LeagueController(
     }
 
     /// <summary>
-    /// Update league info
+    /// Update league info: Name, Description, MaxPlayers, Public, Image
     /// </summary>
     /// <response code="200">OK</response>
     /// <response code="400">Bad request</response>
     /// <response code="401">Unauthorized</response>
     /// <response code="404">League not found</response>
-    [HttpPut("{leagueId:int}")]
+    [HttpPost("{leagueId:int}")]
     [ProducesResponseType(200)]
     [ProducesResponseType(400)]
     [ProducesResponseType(401)]
@@ -261,12 +262,15 @@ public class LeagueController(
         {
             return NotFound("League not found");
         }
-        if (imageFile != null)
+
+        if (imageFile == null)
         {
-            var image = await imageFile.ToImage();
-            await imageRepository.UploadImage(image);
-            await leagueRepository.UpdateLeaguePhoto(leagueId, image);
+            return BadRequest();
         }
+
+        var image = await imageFile.ToImage();
+        await imageRepository.UploadImage(image);
+        await leagueRepository.UpdateLeaguePhoto(leagueId, image);
         await leagueRepository.UpdateLeague(leagueId, updateLeagueDto);
         return Ok();
     }

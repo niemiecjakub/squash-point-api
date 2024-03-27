@@ -14,7 +14,8 @@ public static class PlayerMapper
         return new PlayerDto
         {
             Id = playerModel.Id,
-            FullName = playerModel.FirstName + " " + playerModel.LastName
+            FullName = playerModel.FirstName + " " + playerModel.LastName,
+            Photo = playerModel.Photo?.ImageData
         };
     }
 
@@ -32,7 +33,8 @@ public static class PlayerMapper
             Games = playerModel.PlayerGames.Select(pg => pg.Game.ToGameDto()).ToList(),
             Followers = followers.Count(),
             Following = folowees.Count(),
-            Friends = friends.Where(pf => pf.Status == 1).Count()
+            Friends = friends.Where(pf => pf.Status == 1).Count(),
+            Photo = playerModel.Photo?.ImageData
         };
     }
 
@@ -59,6 +61,7 @@ public static class PlayerMapper
             FullName = playerModel.FirstName + " " + playerModel.LastName,
             Email = playerModel.Email,
             Token = token,
+            Photo = playerModel.Photo?.ImageData
         };
     }
 
@@ -69,11 +72,12 @@ public static class PlayerMapper
         {
             Followers = followers.Select(p => p.ToPlayerDto()).ToList(),
             Following = followees.Select(p => p.ToPlayerDto()).ToList(),
-            Friends = friends.Where(pf => pf.Status.Equals(1)).Select(pf => pf.Friend == playerModel ? pf.Player.ToPlayerDto() : pf.Friend.ToPlayerDto()).ToList(),
-            SentFriendRequests = friends.Where(pf => pf.Status.Equals(0) && pf.Player == playerModel).Select(pf => pf.Friend.ToPlayerDto()).ToList(),
-            ReceivedFriendRequests = friends.Where(pf => pf.Status.Equals(0) && pf.Player != playerModel).Select(pf => pf.Player.ToPlayerDto()).ToList(),
-            
+            Friends = friends.Where(pf => pf.Status.Equals(1)).Select(pf =>
+                pf.Friend == playerModel ? pf.Player.ToPlayerDto() : pf.Friend.ToPlayerDto()).ToList(),
+            SentFriendRequests = friends.Where(pf => pf.Status.Equals(0) && pf.Player == playerModel)
+                .Select(pf => pf.Friend.ToPlayerDto()).ToList(),
+            ReceivedFriendRequests = friends.Where(pf => pf.Status.Equals(0) && pf.Player != playerModel)
+                .Select(pf => pf.Player.ToPlayerDto()).ToList(),
         };
     }
-    
 }

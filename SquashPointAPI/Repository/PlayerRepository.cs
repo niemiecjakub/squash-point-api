@@ -10,12 +10,13 @@ public class PlayerRepository(ApplicationDBContext context, UserManager<Player> 
 {
     public async Task<ICollection<Player>> GetPlayersAsync()
     {
-        return await context.Players.OrderBy(p => p.Id).ToListAsync();
+        return await context.Players.Include(p => p.Photo).OrderBy(p => p.Id).ToListAsync();
     }
 
     public async Task<Player> GetPlayerAsync(string playerId)
     {
         return await context.Players
+            .Include(p => p.Photo)
             .Include(p => p.Following)
             .Include(p => p.PlayerLeagues)
             .ThenInclude(pg => pg.League)
@@ -26,7 +27,7 @@ public class PlayerRepository(ApplicationDBContext context, UserManager<Player> 
             .Include(p => p.PlayerGames)
             .ThenInclude(pg => pg.Game)
             .ThenInclude(pg => pg.League)
-            .FirstOrDefaultAsync(p => p.Id.Equals(playerId));
+            .FirstAsync(p => p.Id.Equals(playerId));
     }
 
     public async Task<ICollection<Game>> GetPlayerGamesAsync(string playerId)
@@ -64,18 +65,27 @@ public class PlayerRepository(ApplicationDBContext context, UserManager<Player> 
             .Where(pf => pf.PlayerId.Equals(playerId) || pf.FriendId.Equals(playerId))
             .Include(pf => pf.Friend)
             .Include(pf => pf.Player)
+            .ThenInclude(p => p.Photo)
             .ToListAsync();
     }
 
     public async Task<ICollection<Player>> GetPlayerFollowersAsync(string playerId)
     {
-        return await context.FollowerFollowee.Where(pf => pf.Followee.Id == playerId).Select(pf => pf.Follower)
+        return await context.FollowerFollowee
+            .Where(pf => pf.Followee.Id.Equals(playerId))
+            .Include(pf => pf.Follower)
+            .ThenInclude(f => f.Photo)
+            .Select(pf => pf.Follower)
             .ToListAsync();
     }
 
     public async Task<ICollection<Player>> GetPlayerFolloweesAsync(string playerId)
     {
-        return await context.FollowerFollowee.Where(pf => pf.Follower.Id == playerId).Select(pf => pf.Followee)
+        return await context.FollowerFollowee
+            .Where(pf => pf.Follower.Id.Equals(playerId))
+            .Include(pf => pf.Followee)
+            .ThenInclude(f => f.Photo)
+            .Select(pf => pf.Followee)
             .ToListAsync();
     }
 
@@ -105,7 +115,10 @@ public class PlayerRepository(ApplicationDBContext context, UserManager<Player> 
 
     public async Task<Player> LoginUserAsync(string email)
     {
-        return await userManager.Users.Include(p => p.Following).FirstAsync(u => u.Email.ToLower() == email.ToLower());
+        return await userManager.Users
+            .Include(p => p.Following)
+            .Include(p => p.Photo)
+            .FirstAsync(u => u.Email.ToLower().Equals(email.ToLower()));
     }
 
     public async Task<bool> SendFriendRequestAsync(PlayerFriend playerFriend)
@@ -115,7 +128,7 @@ public class PlayerRepository(ApplicationDBContext context, UserManager<Player> 
         return true;
     }
 
-    public async Task<bool> AcceptFriendRequestAsync(Player sender, Player receiver,int status)
+    public async Task<bool> AcceptFriendRequestAsync(Player sender, Player receiver, int status)
     {
         var playerFriend =
             await context.PlayerFriends.FirstAsync(pf =>
@@ -124,7 +137,8 @@ public class PlayerRepository(ApplicationDBContext context, UserManager<Player> 
         await context.SaveChangesAsync();
         return true;
     }
-    public async Task<bool> DeleteFriendAsync(Player player,Player friend)
+
+    public async Task<bool> DeleteFriendAsync(Player player, Player friend)
     {
         var playerFriend =
             await context.PlayerFriends.FirstAsync(pf =>
@@ -132,5 +146,13 @@ public class PlayerRepository(ApplicationDBContext context, UserManager<Player> 
         context.PlayerFriends.Remove(playerFriend);
         await context.SaveChangesAsync();
         return true;
+    }
+
+    public async Task<Player> UpdatePlayerPhoto(string playerId, Image image)
+    {
+        var player = await context.Players.FirstOrDefaultAsync(p => p.Id == playerId);
+        player.Photo = image;
+        await context.SaveChangesAsync();
+        return player;
     }
 }

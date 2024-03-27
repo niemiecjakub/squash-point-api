@@ -34,7 +34,7 @@ public static class LeagueMapper
             Players = leagueModel.PlayerLeagues.Select(pl => pl.Player.ToLeaguePlayerDto())
                 .OrderByDescending(p => p.Score).ToList(),
             Games = leagueModel.Games.Select(g => g.ToGameDto()).OrderByDescending(g => g.Date).ToList(),
-            Photo = leagueModel.Photo == null ? null : leagueModel.Photo.ImageData
+            Photo = leagueModel.Photo?.ImageData
         };
     }
 

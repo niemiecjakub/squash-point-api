@@ -12,4 +12,5 @@ public class PlayerDetailsDto : PlayerDto
     public int Followers { get; set; }
     public int Following { get; set; }
     public int Friends { get; set; }
+    public byte[]? Photo { get; set; }
 }
